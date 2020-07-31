@@ -21,7 +21,7 @@ def get_jobs():
     elif sort_criteria == "positions":
         all_jobs = sorted(all_jobs, key=lambda job: job.positions, reverse=True)
 
-    json_string = json.dumps(all_jobs, default=lambda job: job.__dict__())
+    json_string = json.dumps(all_jobs, default=lambda job: job.__dict__)
     return json_string
 
 @main.route('/api/add-job', methods=["POST"])
