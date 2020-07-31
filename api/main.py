@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from flask_login import current_user, login_required
 from .models import Job
 from .extensions import db
+import json
 
 main = Blueprint('main', __name__)
 
@@ -9,7 +10,19 @@ main = Blueprint('main', __name__)
 @main.route('/api/get-jobs', methods=["GET"])
 def get_jobs():
     all_jobs = Job.query.all()
-    return str(all_jobs)
+
+    sort_criteria = request.form.get("sort")
+    if sort_criteria == "date" or sort_criteria == None:        # if variable "sort" doesn't exist it returns None right?
+        pass
+    elif sort_criteria == "location":
+        pass
+    elif sort_criteria == "wage":
+        all_jobs = sorted(all_jobs, key=lambda job: job.wage, reverse=True)
+    elif sort_criteria == "positions":
+        all_jobs = sorted(all_jobs, key=lambda job: job.positions, reverse=True)
+
+    json_string = json.dumps(all_jobs, default=lambda job: job.__dict__())
+    return json_string
 
 @main.route('/api/add-job', methods=["POST"])
 @login_required
