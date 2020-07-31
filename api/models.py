@@ -16,3 +16,5 @@ class Job(db.Model):
     date = db.Column(db.Text)
     location = db.Column(db.Text)
     description = db.Column(db.Text)
+
+    employer = db.Column(db.String)
