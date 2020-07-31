@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, url_for, request
+from flask import Blueprint, flash, redirect, url_for, request, jsonify, render_template
 from flask_login import login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.urls import url_parse
@@ -12,6 +12,7 @@ auth = Blueprint("auth", __name__)
 @auth.route('/login', methods=["GET", "POST"])
 def login():
     if request.method == "POST":
+        print("HERE")
         username_or_email = request.form.get("username_or_email")
         password = request.form.get("password")
         remember = True if request.form.get('remember_me') else False
@@ -19,16 +20,20 @@ def login():
         user = User.query.filter((User.email == username_or_email) | (User.username == username_or_email)).first()
         if not user or not check_password_hash(user.password, password):
             flash("Check your login details and try again.")
+            print("Fail")
             return redirect(url_for('auth.login'))
 
         login_user(user, remember=remember)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('main.profile')
+            # Testing
+            next_page = url_for('main.success')
+            print("Success!")
+            # return jsonify({'username': user.username})
         return redirect(next_page)
     else:
-        # return render_template("login.html")
-        return "Login Page Here"
+        return render_template("testing_files/login.html")
+        #return "Login Page Here"
 
 
 @auth.route('/register', methods=['GET', 'POST'])
@@ -55,10 +60,12 @@ def signup():
         db.session.add(new_user)
         db.session.commit()
 
+        # Testing
         return redirect(url_for('auth.login'))
-    else:
-        return "Register Page Here"
 
+        # return jsonify({'username': user.username})
+    else:
+        return render_template("testing_files/register.html")
 
 @auth.route('/logout')
 @login_required

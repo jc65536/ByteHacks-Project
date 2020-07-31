@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, render_template, jsonify
 from flask_login import current_user, login_required
 from .models import Job
 from .extensions import db
@@ -24,6 +24,7 @@ def get_jobs():
     json_string = json.dumps(all_jobs, default=lambda job: job.__dict__)
     return json_string
 
+
 @main.route('/api/add-job', methods=["POST"])
 @login_required
 def add_job():
@@ -32,13 +33,30 @@ def add_job():
     date = request.form.get("date")
     location = request.form.get("location")
     description = request.form.get("description")
+    duration = request.form.get("duration")
+    wage = request.form.get("wage")
 
     # Will Assign The Job To Employer
     employer_uname = current_user.username
 
-    new_job = Job(title=title, positions=positions, date=date, location=location, description=description, employer=employer_uname)
+    new_job = Job(title=title, positions=positions, date=date, location=location, description=description,
+                  employer=employer_uname, duration=duration, wage=wage)
 
     db.session.add(new_job)
     db.session.commit()
 
-    return new_job.id
+    return jsonify(
+        id=new_job.id
+    )
+
+
+@main.route('/api/add-job-page', methods=["GET"])
+def show_page():
+    return render_template("testing_files/addjob.html")
+
+
+# Only Testing
+@main.route("/api/successful_login")
+def success():
+    print("Succ")
+    return "Success Logging In"
