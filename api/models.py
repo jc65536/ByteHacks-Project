@@ -18,3 +18,4 @@ class Job(db.Model):
     location = db.Column(db.Text)
     description = db.Column(db.Text)
     wage = db.Column(db.Float)
+    employer = db.Column(db.String)
