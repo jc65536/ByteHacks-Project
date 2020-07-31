@@ -1,3 +1,3 @@
-from app import create_app
-from app.extensions import db
+from api import create_app
+from api.extensions import db
 db.create_all(app=create_app())
