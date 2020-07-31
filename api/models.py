@@ -14,5 +14,7 @@ class Job(db.Model):
     title = db.Column(db.Text)
     positions = db.Column(db.Integer)
     date = db.Column(db.Text)
+    duration = db.Column(db.Integer)
     location = db.Column(db.Text)
     description = db.Column(db.Text)
+    wage = db.Column(db.Float)
