@@ -10,31 +10,31 @@
                 <label class="block text-gray-700 text-xl font-bold mb-2" for="inline-full-name">
                     Job
                 </label>
-                <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-full-name" type="text" value="Jane Doe">
+                <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-full-name" type="text" placeholder="What is the job?">
             </div>
             <div class="md:items-center mb-6">
                 <label class="block text-gray-700 text-xl font-bold mb-2" for="inline-password">
                     Employer
                 </label>
-                <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-password" type="text" placeholder="A great company">
+                <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-full-name" type="text" placeholder="What Company/Name is hosting the job?">
             </div>
             <div class="md:items-center mb-6">
                 <label class="block text-gray-700 text-xl font-bold mb-2" for="inline-full-name">
                     # of Positions
                 </label>
-                <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-full-name" type="text" value="Jane Doe">
+                <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-full-name" type="text" placeholder="How many people can you hire?">
             </div>
             <div class="md:items-center mb-6">
                 <label class="block text-gray-700 text-xl font-bold mb-2" for="inline-full-name">
                     Date Job Opportunity will start
                 </label>
-                <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-full-name" type="text" value="Jane Doe">
+                <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-full-name" type="text" placeholder="Answer in Month/Date/Year format">
             </div>
             <div class="md:items-center mb-6">
                 <label class="block text-gray-700 text-xl font-bold mb-2" for="inline-full-name">
                     Date Job Opportunity will end
                 </label>
-                <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-full-name" type="text" value="Jane Doe">
+                <input class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="inline-full-name" type="text" placeholder="Answer in Month/Date/Year format">
             </div>
             <div class="md:items-center mb-6">
                 <label class="block text-gray-700 text-xl font-bold mb-2" for="inline-full-name">
