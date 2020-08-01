@@ -63,7 +63,15 @@ def show_page():
 def update_job():
     job_id = request.form.get("id")
     job = Job.query.filter_by(id=job_id, employer=current_user.username)
-    setattr(job, )
+    if job:
+        setattr(job, title, request.form.get("title") or job.title)
+        setattr(job, positions, request.form.get("positions") or job.positions)
+        setattr(job, date, request.form.get("date") or job.date)
+        setattr(job, duration, request.form.get("duration") or job.duration)
+        setattr(job, location, request.form.get("location") or job.location)
+        setattr(job, description, request.form.get("description") or job.description)
+        setattr(job, wage, request.form.get("wage") or job.wage)
+        db.session.commit()
 
 
 # Only Testing
