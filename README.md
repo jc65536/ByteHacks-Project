@@ -1,6 +1,8 @@
 # ByteHacks-Project
 The Haphazard Hackers' project.
 
+### How to run backend
+
 Installing Dependencies:<br>
 `pip install -r requirements.txt`
 
@@ -13,3 +15,5 @@ export FLASK_APP=api (Unix)
 set FLASK_APP=api (Windows CMD)
 flask run
 ```
+
+or run `run.bat` if you're on Windows
