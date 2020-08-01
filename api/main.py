@@ -11,7 +11,11 @@ def row2dict(row):
 
 @main.route('/api/get-jobs', methods=["GET"])
 def get_jobs():
-    all_jobs = Job.query.all()
+    employer_id = request.form.get("employer")
+    if employer_id is None:
+        all_jobs = Job.query.all()
+    else:
+        all_jobs = Job.query.filter(Job.employer == employer_id)
 
     sort_criteria = request.form.get("sort")
     if sort_criteria == "date" or sort_criteria is None:        # if variable "sort" doesn't exist it returns None right?
@@ -50,10 +54,16 @@ def add_job():
         id=new_job.id
     )
 
-
 @main.route('/api/add-job-page', methods=["GET"])
 def show_page():
     return render_template("testing_files/addjob.html")
+
+@main.route("/api/update-job", methods=["GET"])
+@login_required
+def update_job():
+    job_id = request.form.get("id")
+    job = Job.query.filter_by(id=job_id, employer=current_user.username)
+    setattr(job, )
 
 
 # Only Testing
