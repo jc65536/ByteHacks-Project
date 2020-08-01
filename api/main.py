@@ -6,8 +6,10 @@ import json
 
 main = Blueprint('main', __name__)
 
+
 def row2dict(row):
     return dict((col, getattr(row, col)) for col in row.__table__.columns.keys())
+
 
 @main.route('/api/get-jobs', methods=["GET"])
 def get_jobs():
@@ -18,7 +20,7 @@ def get_jobs():
         all_jobs = Job.query.filter(Job.employer == employer_id)
 
     sort_criteria = request.form.get("sort")
-    if sort_criteria == "date" or sort_criteria is None:        # if variable "sort" doesn't exist it returns None right?
+    if sort_criteria == "date" or sort_criteria is None:  # if variable "sort" doesn't exist it returns None right?
         pass
     elif sort_criteria == "location":
         pass
@@ -54,28 +56,42 @@ def add_job():
         id=new_job.id
     )
 
+
 @main.route('/api/add-job-page', methods=["GET"])
 def show_page():
     return render_template("testing_files/addjob.html")
+
 
 @main.route("/api/update-job", methods=["POST"])
 @login_required
 def update_job():
     job_id = request.form.get("id")
-    job = Job.query.filter_by(id=job_id, employer=current_user.username)
+    print(job_id)
+    job = Job.query.filter_by(id=job_id, employer=current_user.username).first()
+    print(job)
     if job:
-        setattr(job, title, request.form.get("title") or job.title)
-        setattr(job, positions, request.form.get("positions") or job.positions)
-        setattr(job, date, request.form.get("date") or job.date)
-        setattr(job, duration, request.form.get("duration") or job.duration)
-        setattr(job, location, request.form.get("location") or job.location)
-        setattr(job, description, request.form.get("description") or job.description)
-        setattr(job, wage, request.form.get("wage") or job.wage)
+        setattr(job, 'title', request.form.get("title") or job.title)
+        setattr(job, 'positions', request.form.get("positions") or job.positions)
+        setattr(job, 'date', request.form.get("date") or job.date)
+        setattr(job, 'duration', request.form.get("duration") or job.duration)
+        setattr(job, 'location', request.form.get("location") or job.location)
+        setattr(job, 'description', request.form.get("description") or job.description)
+        setattr(job, 'wage', request.form.get("wage") or job.wage)
         db.session.commit()
+    return jsonify(
+        id=job_id
+    )
+
+
+# Only Testing
+@main.route('/api/update-job-page', methods=['GET'])
+@login_required
+def send_page():
+    return render_template("testing_files/updatejob.html")
 
 
 # Only Testing
 @main.route("/api/successful_login")
 def success():
-    print("Succ")
+    print("Success")
     return "Success Logging In"
