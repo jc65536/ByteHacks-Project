@@ -47,7 +47,7 @@ export default {
     submit () {
       this.$store.dispatch('login', this.form)
       .then((res) => {
-        if (res.authenticated) alert('AUTHENTICATED SUCCESFULLY')
+        if (res.authenticated) alert(`AUTHENTICATED SUCCESFULLY, your name is ${this.$store.getters.JWTProperty('name')}`)
         else alert(res.message)
       })
     }
