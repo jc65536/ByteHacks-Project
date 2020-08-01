@@ -13,8 +13,8 @@ def row2dict(row):
 
 @main.route('/api/get-jobs', methods=["GET"])
 def get_jobs():
-    email = request.form.get("email")
-    employer = request.form.get('employer')
+    email = request.args.get("email")
+    employer = request.args.get('employer')
     if email is None and employer is None:
         all_jobs = Job.query.all()
     elif employer is not None:
