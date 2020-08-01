@@ -24,8 +24,6 @@ class User(db.Model):
 
         user = cls.query.filter_by(email=email).first()
         if not user or not check_password_hash(user.password, password):
-            print("Username, Password_Hash_Validity", email, check_password_hash(user.password, password))
-            print(user.password, password, generate_password_hash(password))
             return None
         return user
 

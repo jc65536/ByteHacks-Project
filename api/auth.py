@@ -24,11 +24,13 @@ def login():
     token = jwt.encode({
         'sub': user.email,
         'iat': datetime.utcnow(),
-        'exp': datetime.utcnow() + timedelta(weeks=1)},
+        'exp': datetime.utcnow() + timedelta(weeks=1),
+        'name': user.name
+        },
         current_app.config['SECRET_KEY']
     )
 
-    return jsonify({'token': token.decode('UTF-8')})
+    return jsonify({'token': token.decode('UTF-8'), 'authenticated': True})
 
 
 @auth.route('/api/register', methods=['POST'])
@@ -38,10 +40,9 @@ def signup():
     email_check = User.query.filter_by(email=data['email']).first()
     if email_check:
         return jsonify({'message': 'Email already exists in database', 'registered': False})
-    print("New User Password:", data['password'])
     new_user = User(name=data['name'], email=data['email'], password=data['password'])
 
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({'message': 'success'})
+    return jsonify({'message': 'success', 'registered': True})

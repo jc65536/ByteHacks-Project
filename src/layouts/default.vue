@@ -13,6 +13,16 @@ import Navbar from '../components/Navbar'
 export default {
   components: {
     Navbar
+  },
+  mounted () {
+    const jwt = localStorage.getItem('jwt')
+    if (jwt && this.$store.getters.isValidJWT(jwt)) {
+      this.$store.commit('setJWT', jwt)
+      this.$store.commit('setUserData', {
+        email: this.$store.getters.JWTProperty('sub'),
+        name: this.$store.getters.JWTProperty('name')
+      })
+    }
   }
 }
 </script>

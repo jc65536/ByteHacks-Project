@@ -1,9 +1,10 @@
 //  import isValidJWT from '../util/auth'
-import axios from 'axios'
+import axioslib from 'axios'
+const axios = axioslib.create({ baseURL: 'http://localhost:5000' })
 
 export const state = () => ({
   jwt: '',
-  userData: {}
+  user: null
 })
 
 export const mutations = {
@@ -12,7 +13,11 @@ export const mutations = {
     state.jwt = token
   },
   setUserData (state, data) {
-    state.userData = data
+    state.user = data
+  },
+  clearUser (state) {
+    state.user = null
+    state.jwt = null
   }
 }
 
@@ -26,6 +31,7 @@ export const actions = {
         email: loginData.email,
         name: ctx.getters.JWTProperty('name')
       })
+      return { authenticated: true }
     })
     .catch((err) => {
       return { authenticated: false, message: err }
@@ -39,19 +45,25 @@ export const actions = {
     })
     .then((res) => {
       if (!res.authenticated) return res
+      return { registered: true }
     })
     .catch((err) => {
       return { registered: false, message: err }
     })
   },
+  logout (ctx) {
+    this.commit('clearUser')
+    localStorage.clear()
+    document.location.href = '/'
+  }
 }
 
 export const getters = {
   JWTProperty: state => (prop) => {
     return JSON.parse(atob(state.jwt.split('.')[1]))[prop] // decode property from jwt
   },
-  isValidJson: (state) => {
-    const jwt = state.jwt
+  isValidJWT: state => (token) => {
+    const jwt = state.jwt || token
     if (!jwt || jwt.split('.').length < 3) {
       return false
     }

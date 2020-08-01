@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class.txt= "txt">
       <h2 class="text-teal-500 text-6xl text-center">
         Create a new job
       </h2>
@@ -83,3 +83,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.txt {
+  background: url('');
+}
+</style>

@@ -51,7 +51,7 @@ export default {
     submit () {
       this.$store.dispatch('register', this.form)
       .then((res) => {
-        if (res.registered) alert('REGISTERED SUCCESFULLY')
+        if (res.registered) this.$router.push('/')
         else alert(res.message)
       })
     }
