@@ -5,6 +5,7 @@ import os
 
 SECRET_KEY = os.urandom(32)
 
+
 # Basic app factory
 def create_app():
     app = Flask(__name__)

@@ -19,3 +19,4 @@ class Job(db.Model):
     description = db.Column(db.Text)
     wage = db.Column(db.Float)
     employer = db.Column(db.String)
+    creator = db.Column(db.String)

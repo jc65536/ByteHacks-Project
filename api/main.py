@@ -13,11 +13,14 @@ def row2dict(row):
 
 @main.route('/api/get-jobs', methods=["GET"])
 def get_jobs():
-    email = request.form.get("employer")
-    if email is None:
+    email = request.form.get("email")
+    employer = request.form.get('employer')
+    if email is None and employer is None:
         all_jobs = Job.query.all()
+    elif employer is not None:
+        all_jobs = Job.query.filter_by(employer=employer).all()
     else:
-        all_jobs = Job.query.filter_by(employer=email).all()
+        all_jobs = Job.query.filter_by(creator=email).all()
 
     wanted_jobs = [row2dict(job) for job in all_jobs]
     sort_criteria = request.form.get("sort")
@@ -45,12 +48,13 @@ def add_job():
     start = request.form.get("start-date")
     end = request.form.get("end-date")
     wage = request.form.get("wage")
+    employer = request.form.get("employer")
 
-    # Will Assign The Job To Employer
+    # Will Assign The Job To Account Who Created It
     email = current_user.email
 
     new_job = Job(title=title, positions=positions, location=location, description=description,
-                  employer=email, start_date=start, end_date=end, wage=wage)
+                  employer=employer, start_date=start, end_date=end, wage=wage, creator=email)
 
     db.session.add(new_job)
     db.session.commit()
@@ -70,7 +74,7 @@ def show_page():
 def update_job():
     job_id = request.form.get("id")
     print(job_id)
-    job = Job.query.filter_by(id=job_id, employer=current_user.username).first()
+    job = Job.query.filter_by(id=job_id, creator=current_user.email).first()
     print(job)
     if job:
         setattr(job, 'title', request.form.get("title") or job.title)
@@ -81,6 +85,7 @@ def update_job():
         setattr(job, 'location', request.form.get("location") or job.location)
         setattr(job, 'description', request.form.get("description") or job.description)
         setattr(job, 'wage', request.form.get("wage") or job.wage)
+        setattr(job, 'employer', request.form.get("employer") or job.employer)
         db.session.commit()
     else:
         return "Not Authorized to Do This", 401
