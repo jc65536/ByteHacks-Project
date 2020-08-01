@@ -1,6 +1,4 @@
-from flask import Blueprint, flash, redirect, url_for, request, jsonify, render_template, current_app
-from flask_login import login_user, logout_user, login_required
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Blueprint, request, jsonify, current_app
 from datetime import datetime, timedelta
 import jwt
 
@@ -44,11 +42,3 @@ def signup():
     db.session.commit()
 
     return jsonify({'message': 'success'})
-
-
-@auth.route('/api/logout')
-@login_required
-def logout():
-    logout_user()
-    return jsonify({'message': 'success'})
-

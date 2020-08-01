@@ -111,7 +111,6 @@ def update_job(current_user):
     job_id = data['id']
     email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])['sub']
     job = Job.query.filter_by(id=job_id, creator=email).first()
-    print(job)
     if job:
         setattr(job, 'title', data['title'] or job.title)
         setattr(job, 'positions', data["positions"] or job.positions)
