@@ -6,13 +6,15 @@ import json
 
 main = Blueprint('main', __name__)
 
+def row2dict(row):
+    return dict((col, getattr(row, col)) for col in row.__table__.columns.keys())
 
 @main.route('/api/get-jobs', methods=["GET"])
 def get_jobs():
     all_jobs = Job.query.all()
 
     sort_criteria = request.form.get("sort")
-    if sort_criteria == "date" or sort_criteria == None:        # if variable "sort" doesn't exist it returns None right?
+    if sort_criteria == "date" or sort_criteria is None:        # if variable "sort" doesn't exist it returns None right?
         pass
     elif sort_criteria == "location":
         pass
@@ -21,10 +23,7 @@ def get_jobs():
     elif sort_criteria == "positions":
         all_jobs = sorted(all_jobs, key=lambda job: job.positions, reverse=True)
 
-    print(all_jobs)
-
-    json_string = "fdsa"
-    return str(all_jobs)
+    return jsonify([row2dict(job) for job in all_jobs])
 
 
 @main.route('/api/add-job', methods=["POST"])
