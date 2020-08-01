@@ -58,7 +58,7 @@ def add_job():
 def show_page():
     return render_template("testing_files/addjob.html")
 
-@main.route("/api/update-job", methods=["GET"])
+@main.route("/api/update-job", methods=["POST"])
 @login_required
 def update_job():
     job_id = request.form.get("id")
