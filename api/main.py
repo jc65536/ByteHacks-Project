@@ -1,10 +1,43 @@
-from flask import Blueprint, request, render_template, jsonify, make_response
-from flask_login import current_user, login_required
-from .models import Job
+from flask import Blueprint, request, render_template, jsonify, current_app
+from .models import Job, User
 from .extensions import db
-import json
+import jwt
+from functools import wraps
 
 main = Blueprint('main', __name__)
+
+
+def token_required(f):
+    @wraps(f)
+    def _verify(*args, **kwargs):
+        auth_headers = request.headers.get('Authorization', '').split()
+
+        invalid_msg = {
+            'message': 'Invalid token. Registration and / or authentication required',
+            'authenticated': False
+        }
+        expired_msg = {
+            'message': 'Expired token. Reauthentication required.',
+            'authenticated': False
+        }
+
+        if len(auth_headers) != 2:
+            return jsonify(invalid_msg), 401
+
+        try:
+            token = auth_headers[1]
+            data = jwt.decode(token, current_app.config['SECRET_KEY'])
+            user = User.query.filter_by(email=data['sub']).first()
+            if not user:
+                raise RuntimeError('User not found')
+            return f(user, *args, **kwargs)
+        except jwt.ExpiredSignatureError:
+            return jsonify(expired_msg), 401  # 401 is Unauthorized HTTP status code
+        except (jwt.InvalidTokenError, Exception) as e:
+            print(e)
+            return jsonify(invalid_msg), 401
+
+    return _verify
 
 
 def row2dict(row):
@@ -13,8 +46,9 @@ def row2dict(row):
 
 @main.route('/api/get-jobs', methods=["GET"])
 def get_jobs():
-    email = request.args.get("email")
-    employer = request.args.get('employer')
+    data = request.get_json()
+    email = data["email"]
+    employer = data['employer']
     if email is None and employer is None:
         all_jobs = Job.query.all()
     elif employer is not None:
@@ -23,7 +57,7 @@ def get_jobs():
         all_jobs = Job.query.filter_by(creator=email).all()
 
     wanted_jobs = [row2dict(job) for job in all_jobs]
-    sort_criteria = request.form.get("sort")
+    sort_criteria = data["sort"]
     if sort_criteria == "date" or sort_criteria is None:
         wanted_jobs = sorted(wanted_jobs, key=lambda job: job.date, reverse=True)
     # We might wanna implement this in the future
@@ -39,19 +73,20 @@ def get_jobs():
 
 
 @main.route('/api/add-job', methods=["POST"])
-@login_required
-def add_job():
-    title = request.form.get("title")
-    positions = request.form.get("positions")
-    location = request.form.get("location")
-    description = request.form.get("description")
-    start = request.form.get("start-date")
-    end = request.form.get("end-date")
-    wage = request.form.get("wage")
-    employer = request.form.get("employer")
+@token_required
+def add_job(current_user):
+    data = request.get_json()
+    title = data["title"]
+    positions = data["positions"]
+    location = data["location"]
+    description = data["description"]
+    start = data["start-date"]
+    end = data["end-date"]
+    wage = data["wage"]
+    employer = data["employer"]
 
     # Will Assign The Job To Account Who Created It
-    email = current_user.email
+    email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])['sub']
 
     new_job = Job(title=title, positions=positions, location=location, description=description,
                   employer=employer, start_date=start, end_date=end, wage=wage, creator=email)
@@ -70,22 +105,23 @@ def show_page():
 
 
 @main.route("/api/update-job", methods=["POST"])
-@login_required
-def update_job():
-    job_id = request.form.get("id")
-    print(job_id)
-    job = Job.query.filter_by(id=job_id, creator=current_user.email).first()
+@token_required
+def update_job(current_user):
+    data = request.get_json()
+    job_id = data['id']
+    email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])['sub']
+    job = Job.query.filter_by(id=job_id, creator=email).first()
     print(job)
     if job:
-        setattr(job, 'title', request.form.get("title") or job.title)
-        setattr(job, 'positions', request.form.get("positions") or job.positions)
-        setattr(job, 'date', request.form.get("date") or job.date)
-        setattr(job, 'start-date', request.form.get("start-date") or job.start_date)
-        setattr(job, 'end-date', request.form.get("end-date") or job.end_date)
-        setattr(job, 'location', request.form.get("location") or job.location)
-        setattr(job, 'description', request.form.get("description") or job.description)
-        setattr(job, 'wage', request.form.get("wage") or job.wage)
-        setattr(job, 'employer', request.form.get("employer") or job.employer)
+        setattr(job, 'title', data['title'] or job.title)
+        setattr(job, 'positions', data["positions"] or job.positions)
+        setattr(job, 'date', data["date"] or job.date)
+        setattr(job, 'start-date', data["start-date"] or job.start_date)
+        setattr(job, 'end-date', data["end-date"] or job.end_date)
+        setattr(job, 'location', data["location"] or job.location)
+        setattr(job, 'description', data["description"] or job.description)
+        setattr(job, 'wage', data["wage"] or job.wage)
+        setattr(job, 'employer', data["employer"] or job.employer)
         db.session.commit()
     else:
         return "Not Authorized to Do This", 401
@@ -96,7 +132,7 @@ def update_job():
 
 # Only Testing
 @main.route('/api/update-job-page', methods=['GET'])
-@login_required
+@token_required
 def send_page():
     return render_template("testing_files/updatejob.html")
 
