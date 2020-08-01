@@ -9,66 +9,47 @@ from .extensions import db
 auth = Blueprint("auth", __name__)
 
 
-@auth.route('/login', methods=["GET", "POST"])
+@auth.route('/api/login', methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        print("HERE")
-        username_or_email = request.form.get("username_or_email")
+        email = request.form.get("email")
         password = request.form.get("password")
         remember = True if request.form.get('remember_me') else False
 
-        user = User.query.filter((User.email == username_or_email) | (User.username == username_or_email)).first()
+        user = User.query.filter_by(email=email).first()
         if not user or not check_password_hash(user.password, password):
-            flash("Check your login details and try again.")
-            print("Fail")
-            return redirect(url_for('auth.login'))
+            return jsonify({'message': 'Invalid login credentials'})
 
         login_user(user, remember=remember)
-        next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
-            # Testing
-            next_page = url_for('main.success')
-            print("Success!")
-            # return jsonify({'username': user.username})
-        return redirect(next_page)
+
+        return jsonify({'message': 'success'})
     else:
         return render_template("testing_files/login.html")
-        #return "Login Page Here"
 
 
-@auth.route('/register', methods=['GET', 'POST'])
+@auth.route('/api/register', methods=['GET', 'POST'])
 def signup():
     if request.method == "POST":
-        username = request.form.get('username')
+        name = request.form.get('name')
         email = request.form.get('email')
         password = request.form.get('password')
-        print("New User: ", username, email, password)
-
-        username_check = User.query.filter_by(username=username).first()
-
-        if username_check:
-            flash("Username Already Exists")
-            return redirect(url_for('auth.signup'))
+        print("New User: ", name, email)
 
         email_check = User.query.filter_by(email=email).first()
         if email_check:
-            flash("Email already exists")
-            return redirect(url_for('auth.signup'))
-
-        new_user = User(username=username, email=email, password=generate_password_hash(password))
+            return jsonify({'message': 'Email already exists in database'})
+        new_user = User(username=name, email=email, password=generate_password_hash(password))
 
         db.session.add(new_user)
         db.session.commit()
 
-        # Testing
-        return redirect(url_for('auth.login'))
-
-        # return jsonify({'username': user.username})
+        return jsonify({'message': 'success'})
     else:
         return render_template("testing_files/register.html")
 
-@auth.route('/logout')
+
+@auth.route('/api/logout')
 @login_required
 def logout():
     logout_user()
-    return "Logged Out"
+    return jsonify({'message': 'success'})

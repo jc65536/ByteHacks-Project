@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, jsonify
+from flask import Blueprint, request, render_template, jsonify, make_response
 from flask_login import current_user, login_required
 from .models import Job
 from .extensions import db
@@ -13,23 +13,26 @@ def row2dict(row):
 
 @main.route('/api/get-jobs', methods=["GET"])
 def get_jobs():
-    employer_id = request.form.get("employer")
-    if employer_id is None:
+    email = request.form.get("employer")
+    if email is None:
         all_jobs = Job.query.all()
     else:
-        all_jobs = Job.query.filter(Job.employer == employer_id)
+        all_jobs = Job.query.filter_by(employer=email).all()
 
+    wanted_jobs = [row2dict(job) for job in all_jobs]
     sort_criteria = request.form.get("sort")
-    if sort_criteria == "date" or sort_criteria is None:  # if variable "sort" doesn't exist it returns None right?
-        pass
+    if sort_criteria == "date" or sort_criteria is None:
+        wanted_jobs = sorted(wanted_jobs, key=lambda job: job.date, reverse=True)
+    # We might wanna implement this in the future
+    # But that's only if we have like a standardized address system such that we can look up location
     elif sort_criteria == "location":
         pass
     elif sort_criteria == "wage":
-        all_jobs = sorted(all_jobs, key=lambda job: job.wage, reverse=True)
+        wanted_jobs = sorted(wanted_jobs, key=lambda job: job.wage, reverse=True)
     elif sort_criteria == "positions":
-        all_jobs = sorted(all_jobs, key=lambda job: job.positions, reverse=True)
+        wanted_jobs = sorted(wanted_jobs, key=lambda job: job.positions, reverse=True)
 
-    return jsonify([row2dict(job) for job in all_jobs])
+    return jsonify(wanted_jobs)
 
 
 @main.route('/api/add-job', methods=["POST"])
@@ -37,17 +40,17 @@ def get_jobs():
 def add_job():
     title = request.form.get("title")
     positions = request.form.get("positions")
-    date = request.form.get("date")
     location = request.form.get("location")
     description = request.form.get("description")
-    duration = request.form.get("duration")
+    start = request.form.get("start-date")
+    end = request.form.get("end-date")
     wage = request.form.get("wage")
 
     # Will Assign The Job To Employer
-    employer_uname = current_user.username
+    email = current_user.email
 
-    new_job = Job(title=title, positions=positions, date=date, location=location, description=description,
-                  employer=employer_uname, duration=duration, wage=wage)
+    new_job = Job(title=title, positions=positions, location=location, description=description,
+                  employer=email, start_date=start, end_date=end, wage=wage)
 
     db.session.add(new_job)
     db.session.commit()
@@ -73,11 +76,14 @@ def update_job():
         setattr(job, 'title', request.form.get("title") or job.title)
         setattr(job, 'positions', request.form.get("positions") or job.positions)
         setattr(job, 'date', request.form.get("date") or job.date)
-        setattr(job, 'duration', request.form.get("duration") or job.duration)
+        setattr(job, 'start-date', request.form.get("start-date") or job.start_date)
+        setattr(job, 'end-date', request.form.get("end-date") or job.end_date)
         setattr(job, 'location', request.form.get("location") or job.location)
         setattr(job, 'description', request.form.get("description") or job.description)
         setattr(job, 'wage', request.form.get("wage") or job.wage)
         db.session.commit()
+    else:
+        return "Not Authorized to Do This", 401
     return jsonify(
         id=job_id
     )
