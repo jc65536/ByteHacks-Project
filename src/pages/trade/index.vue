@@ -1,5 +1,5 @@
 <template>
     <div>
-        trade
+        trade - TODO
     </div>
 </template>
