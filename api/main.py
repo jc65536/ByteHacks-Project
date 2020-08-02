@@ -18,7 +18,6 @@ def get_data(data, property):
     except:
         return None
 
-
 def token_required(f):
     @wraps(f)
     def _verify(*args, **kwargs):
@@ -142,7 +141,7 @@ def update_job(current_user):
 @main.route("/api/soup-info", methods=['GET'])
 @cross_origin()
 def get_info():
-    data = request.get_json()
+    data = request.args.to_dict()
     place_id = get_data(data, "id")
     if place_id:
         details_response = requests.get("https://api.yelp.com/v3/businesses/" + place_id,
@@ -168,13 +167,11 @@ def get_info():
     else:
         return jsonify({'message': 'Need place ID', "successful": False}), 400
 
-
 # yelp categories searched: employmentagencies, foodbanks, homelessshelters
 @main.route("/api/soup", methods=["GET"])
 @cross_origin()
 def get_soup():
-    data = request.get_json()
-
+    data = request.args.to_dict()
     longitude = get_data(data, "longitude")
     latitude = get_data(data, "latitude")
     if (longitude is None) or (latitude is None):
@@ -183,6 +180,7 @@ def get_soup():
     # Note the restriction in radius of https://www.yelp.com/developers/documentation/v3/business_search
     if radius >= 40000:
         return jsonify({"message": "radius too large - max is 25 miles"}), 400
+    
     yelp_response = requests.get("https://api.yelp.com/v3/businesses/search",
                                  params={"longitude": longitude, "latitude": latitude, "radius": radius,
                                          "categories": "employmentagencies, foodbanks, homelessshelters"},
@@ -191,10 +189,10 @@ def get_soup():
 
     class SimplifiedBusiness:
         def __init__(self, name, address, longitude, latitude, image, id):
-            self.name = name;
-            self.address = address;
-            self.longitude = longitude;
-            self.latitude = latitude;
+            self.name = name
+            self.address = address
+            self.longitude = longitude
+            self.latitude = latitude
             self.image = image
             self.id=id
 
