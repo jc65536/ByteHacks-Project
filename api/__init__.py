@@ -4,11 +4,8 @@ from json import load
 from flask_cors import CORS
 
 SECRET_KEY = os.urandom(32)
-with open("config.json") as f:
-    YELP_API_KEY = load(f)['YELP-API-KEY']
-    if YELP_API_KEY == 'YOUR-API-KEY-HERE':
-        raise ValueError("YELP-API-KEY must be set in config.json")
-
+YELP_API_KEY = os.environ['YELP_API_KEY']
+print(repr(YELP_API_KEY))
 
 # Basic app factory
 def create_app():
