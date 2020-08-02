@@ -1,10 +1,21 @@
 <template>
-  <div class="container">
-    <div>
-      <Logo />
-      <h1 class="title">
-        Find Jobs
+  <div>
+    <div class="text-center m-10">
+      <h1 class="text-center text-5xl m-5">
+        Aid App
       </h1>
+      <p v-if="$store.state.user && $store.state.user.name">
+        Hello, {{ $store.state.user.name }}
+      </p>
+      <p>
+        Welcome to Great Depression Aid app. Find jobs, trade, and more.
+      </p>
+      <p>
+        Created for Byte Hacks 2020
+      </p>
+      <p class="my-5">
+        The Great Depression is tough. That's why we created this app for you. Do you need a job quickly but don't want to spend time knocking on doors or filling out time-consuming applications or interviews? <n-link to='/jobs'>Look here!</n-link> Need info about government aid programs and other helpful organizations and resources? <n-link to='/help'>We've got you covered!</n-link> Do you need something but don't have the money? <n-link to='/trade'>Try trading for it!</n-link>  Anything else, look at the bar on the top.
+      </p>
     </div>
   </div>
 </template>
@@ -13,43 +24,9 @@
 export default {}
 </script>
 
-<style>
-.container {
-  margin: 0 auto;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.title {
-  font-family:
-    'Quicksand',
-    'Source Sans Pro',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
-.links {
-  padding-top: 15px;
-}
+<style scoped>
+  a {
+    color: dodgerblue;
+    text-decoration: underline;
+  }
 </style>

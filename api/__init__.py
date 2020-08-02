@@ -1,7 +1,6 @@
-from flask import Flask, jsonify
-from flask_login import LoginManager
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
 import os
+from flask_cors import CORS
 
 SECRET_KEY = os.urandom(32)
 
@@ -11,22 +10,19 @@ def create_app():
     app = Flask(__name__)
     register_extensions(app)
     register_blueprints(app)
+    cors = CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:3000"}})
 
     return app
 
 
 def register_extensions(app):
-    from .extensions import db, login_manager
+    from .extensions import db
     # Will probably need to make a separate config file at some point
     app.config['SECRET_KEY'] = SECRET_KEY
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
-
-    login_manager.login_view = 'auth.login'
-    login_manager.init_app(app)
-
 
 def register_blueprints(app):
     from .main import main
@@ -36,10 +32,3 @@ def register_blueprints(app):
     app.register_blueprint(auth)
 
     from .models import User
-
-    from .extensions import login_manager
-
-    @login_manager.user_loader
-    def load_user(user_id):
-        # since the user_id is just the primary key of our user table, use it in the query for the user
-        return User.query.get(int(user_id))

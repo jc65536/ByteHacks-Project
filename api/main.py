@@ -1,10 +1,12 @@
-from flask import Blueprint, request, render_template, jsonify, make_response
-from flask_login import current_user, login_required
-from .models import Job
+from flask import Blueprint, request, render_template, jsonify, current_app
+from flask_cors import cross_origin
+from .models import Job, User
 from .extensions import db
 import json
 import requests
 from datetime import datetime
+import jwt
+from functools import wraps
 
 main = Blueprint('main', __name__)
 
@@ -14,10 +16,44 @@ def get_data(data, property):
     except:
         return None
 
+def token_required(f):
+    @wraps(f)
+    def _verify(*args, **kwargs):
+        auth_headers = request.headers.get('Authorization', '').split()
+
+        invalid_msg = {
+            'message': 'Invalid token. Registration and / or authentication required',
+            'authenticated': False
+        }
+        expired_msg = {
+            'message': 'Expired token. Reauthentication required.',
+            'authenticated': False
+        }
+
+        if len(auth_headers) != 2:
+            return jsonify(invalid_msg), 401
+
+        try:
+            token = auth_headers[1]
+            data = jwt.decode(token, current_app.config['SECRET_KEY'])
+            user = User.query.filter_by(email=data['sub']).first()
+            if not user:
+                raise RuntimeError('User not found')
+            return f(user, *args, **kwargs)
+        except jwt.ExpiredSignatureError:
+            return jsonify(expired_msg), 401  # 401 is Unauthorized HTTP status code
+        except (jwt.InvalidTokenError, Exception) as e:
+            print(e)
+            return jsonify(invalid_msg), 401
+
+    return _verify
+
+
 def row2dict(row):
     return dict((col, getattr(row, col)) for col in row.__table__.columns.keys())
 
 @main.route('/api/get-jobs', methods=["GET"])
+@cross_origin()
 def get_jobs():
     data = request.get_json()
     email = get_data(data, "email")
@@ -46,8 +82,9 @@ def get_jobs():
 
 
 @main.route('/api/add-job', methods=["POST"])
-@login_required
-def add_job():
+@cross_origin()
+@token_required
+def add_job(current_user):
     data = request.get_json()
     title = get_data(data, "title")
     positions = get_data(data, "positions")
@@ -59,7 +96,7 @@ def add_job():
     employer = get_data(data, "employer")
 
     # Will Assign The Job To Account Who Created It
-    email = current_user.email
+    email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])['sub']
 
     new_job = Job(title=title, positions=positions, location=location, description=description,
                   employer=employer, start_date=start, end_date=end, wage=wage, creator=email)
@@ -78,13 +115,13 @@ def show_page():
 
 
 @main.route("/api/update-job", methods=["POST"])
-@login_required
-def update_job():
+@cross_origin()
+@token_required
+def update_job(current_user):
     data = request.get_json()
     job_id = get_data(data, "id")
-    print(job_id)
+    email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])['sub']
     job = Job.query.filter_by(id=job_id, creator=current_user.email).first()
-    print(job)
     if job:
         setattr(job, 'title', data["title"] or job.title)
         setattr(job, 'positions', data["positions"] or job.positions)
@@ -152,7 +189,7 @@ def get_soup():
 
 # Only Testing
 @main.route('/api/update-job-page', methods=['GET'])
-@login_required
+@token_required
 def send_page():
     return render_template("testing_files/updatejob.html")
 
