@@ -102,7 +102,11 @@ export default {
       .then((res) => {
         alert(`Job posted! Job id ${res.data.id}`)
       })
-      .catch(err => alert(err))
+      .catch((err) => {
+        if (err.response.status === 401) {
+        }
+        alert(err)
+      })
     }
   }
 }

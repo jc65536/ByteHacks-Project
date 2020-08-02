@@ -14,6 +14,7 @@
             Password
           </label>
           <input v-model="form.password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" type="password" placeholder="******************">
+          <p class="text-sm text-red-600">{{ error }}</p>
         </div>
         <div class="flex items-center justify-between">
           <button class="bg-teal-400 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button" @click="submit">
@@ -39,7 +40,8 @@
 export default {
   data () {
     return {
-      form: {}
+      form: {},
+      error: ''
     }
   },
   methods: {
@@ -47,6 +49,7 @@ export default {
       this.$store.dispatch('login', this.form)
       .then((res) => {
         if (res.authenticated) this.$router.push('/')
+        else if (res.message.response.status === 401) this.error = 'Incorrect email or password'
         else alert(res.message)
       })
     }
