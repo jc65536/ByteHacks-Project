@@ -70,12 +70,11 @@ def get_jobs():
 
     wanted_jobs = [row2dict(job) for job in all_jobs]
     sort_criteria = get_data(data, "sort")
-    # if sort_criteria == "date" or sort_criteria is None:
-    #     print(wanted_jobs)
-    #     wanted_jobs = sorted(wanted_jobs, key=lambda job: job.start_date, reverse=True)
+    if sort_criteria == "date" or sort_criteria is None:
+        wanted_jobs = sorted(wanted_jobs, key=lambda job: datetime.fromisoformat(job['start_date']), reverse=True)
     # We might wanna implement this in the future
     # But that's only if we have like a standardized address system such that we can look up location
-    if sort_criteria == "location":
+    elif sort_criteria == "location":
         pass
     elif sort_criteria == "wage":
         wanted_jobs = sorted(wanted_jobs, key=lambda job: job.wage, reverse=True)
