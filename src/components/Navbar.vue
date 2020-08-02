@@ -12,15 +12,26 @@
       </div>
       <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
         <div class="text-sm lg:flex-grow">
-          <n-link to="/jobs" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
-            Find a Job
-          </n-link>
-          <n-link to="/jobs/add" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
-            Create a new job
-          </n-link>
-          <n-link to="/help" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
-            Get help
-          </n-link>
+          <div class="block mt-4 lg:inline-block lg:mt-0 hover:text-white mr-4 dropdown">
+            <button class="text-teal-200 rounded inline-flex items-center">
+              <span class="mr-1">Jobs</span>
+              <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/> </svg>
+            </button>
+            <ul class="dropdown-menu absolute hidden text-gray-700 pt-1">
+              <li class=""><n-link to='/jobs' class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap">Find a job</n-link></li>
+              <li class=""><n-link to='/jobs/add' class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap rounded-b ">Add a new job</n-link></li>
+            </ul>
+          </div>
+          <div class="block mt-4 lg:inline-block lg:mt-0 hover:text-white mr-4 dropdown">
+            <button class="text-teal-200 rounded inline-flex items-center">
+              <span class="mr-1">Get Help</span>
+              <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/> </svg>
+            </button>
+            <ul class="dropdown-menu absolute hidden text-gray-700 pt-1">
+              <li class=""><n-link to='/help/soup' class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap">Soup kitchens &amp; Shelters</n-link></li>
+              <li class=""><n-link to='/help' class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap rounded-b ">Helpful resources</n-link></li>
+            </ul>
+          </div>
           <n-link to="/trade" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
             Trade
           </n-link>
@@ -38,3 +49,9 @@
     </nav>
   </div>
 </template>
+
+<style scoped>
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+</style>

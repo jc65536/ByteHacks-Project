@@ -26,12 +26,11 @@
             Create account
           </n-link> -->
         </div>
-        <div class="md:flex md:items-center">
-          <div class="md:w-1/3"></div>
-    <div class="md:w-2/3">
-    </div>
-  </div>
       </form>
+      <p class="text-center text-sm text-gray-500">
+        Don't have an account?
+        <n-link to='/account/create'><u>Create one!</u></n-link>
+      </p>
     </div>
   </div>
 </template>
