@@ -20,9 +20,9 @@
           <button class="bg-teal-400 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button" @click="submit">
             Sign In
           </button>
-          <a class="inline-block align-baseline font-bold text-sm text-teal-400 hover:text-teal-600" href="#">
-            Forgot Password?
-          </a>
+          <n-link to='/account/create' class="inline-block align-baseline font-bold text-sm text-teal-400 hover:text-teal-600">
+            Create account
+          </n-link>
           <!-- <n-link to='/account/create' class="inline-block align-baseline font-bold text-sm text-teal-400 hover:text-teal-600 my-5">
             Create account
           </n-link> -->

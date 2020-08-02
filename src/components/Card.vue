@@ -15,6 +15,7 @@
       <p>Ends {{ convertedEnddate }}</p>
     </div>
     <p class="text-sm my-2">At {{ location }}</p>
+    <n-link v-if='editlink' :to='editlink' class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">Edit</n-link>
   </div>
 </div>
 </template>
@@ -38,7 +39,8 @@ export default {
     'toptag',
     'startdate',
     'enddate',
-    'location'
+    'location',
+    'editlink'
   ],
   computed: {
     convertedStartdate () {
