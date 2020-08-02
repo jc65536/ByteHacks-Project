@@ -139,8 +139,8 @@ def update_job(current_user):
     )
 
 
-@cross_origin()
 @main.route("/api/soup-info", methods=['GET'])
+@cross_origin()
 def get_info():
     data = request.get_json()
     place_id = get_data(data, "id")
@@ -170,8 +170,8 @@ def get_info():
 
 
 # yelp categories searched: employmentagencies, foodbanks, homelessshelters
-@cross_origin()
 @main.route("/api/soup", methods=["GET"])
+@cross_origin()
 def get_soup():
     data = request.get_json()
 
