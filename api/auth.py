@@ -26,7 +26,7 @@ def login():
         'iat': datetime.utcnow(),
         'exp': datetime.utcnow() + timedelta(weeks=1),
         'name': user.name
-        },
+    },
         current_app.config['SECRET_KEY']
     )
 

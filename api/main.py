@@ -1,12 +1,13 @@
-from flask import Blueprint, request, render_template, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app
 from flask_cors import cross_origin
-from .models import Job, User
+from .models import Job, User, Message
 from .extensions import db
 from . import YELP_API_KEY
 import requests
 from datetime import datetime
 import jwt
 from functools import wraps
+import time
 
 main = Blueprint('main', __name__)
 
@@ -170,11 +171,11 @@ def get_soup():
     longitude = get_data(data, "longitude")
     latitude = get_data(data, "latitude")
     if (longitude is None) or (latitude is None):
-        return jsonify({"message":"no location specified"}), 400
+        return jsonify({"message": "no location specified"}), 400
     radius = (get_data(data, "radius") or 5) * 1600  # miles to meters
     # Note the restriction in radius of https://www.yelp.com/developers/documentation/v3/business_search
     if radius >= 40000:
-        return jsonify({"message":"radius too large - max is 25 miles"}), 400
+        return jsonify({"message": "radius too large - max is 25 miles"}), 400
     yelp_response = requests.get("https://api.yelp.com/v3/businesses/search",
                                  params={"longitude": longitude, "latitude": latitude, "radius": radius,
                                          "categories": "employmentagencies, foodbanks, homelessshelters"},
@@ -196,3 +197,63 @@ def get_soup():
                                                    bus["image_url"]).__dict__)
 
     return jsonify(simplified_array)
+
+
+@main.route("/api/send-message", methods=["POST"])
+@cross_origin(supports_credentials=True)
+@token_required
+def send_message(current_user):
+    data = request.get_json()
+    timestamp = time.time()
+    sender_email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])[
+        'sub']
+    try:
+        recipient = data['recipient']
+        message = data['message']
+    except:
+        return jsonify({'message': 'Invalid request', 'successful': False}), 400
+
+    sender_user = User.query.filter_by(email=sender_email).first()
+
+    recipient_user = User.query.filter_by(email=recipient).first()
+    if recipient_user is None:
+        return jsonify({'message': 'Recipient not found', 'successful': False}), 400
+
+    msg = Message(author=sender_user, recipient=recipient_user, message=message, timestamp=timestamp)
+
+    db.session.add(msg)
+    db.session.commit()
+
+    return jsonify({'message': 'Message sent successfully', 'successful': True})
+
+
+@main.route("/api/get-message", methods=["GET"])
+@cross_origin(supports_credentials=True)
+@token_required
+def recv_message(current_user):
+    data = request.get_json()
+    requestor_email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])[
+        'sub']
+
+    requestor = User.query.filter_by(email=requestor_email).first()
+
+    starting_time = 0
+    if get_data(data, 'time'):
+        starting_time = time
+
+    recieved_messages = [{'timestamp': message.timestamp, 'sender_email': User.query(id=message.sender_id),
+                          'reciever_email': User.query(id=message.recipient_id), 'message': message.message} for message
+                         in
+                         requestor.messages_recieved.filter(
+                             Message.timestamp >= starting_time
+                         ).all()]
+
+    sent_messages = [{'timestamp': message.timestamp, 'sender_email': User.query(id=message.sender_id),
+                      'reciever_email': User.query(id=message.recipient_id), 'message': message.message} for message in
+                     requestor.messages_sent.filter(
+                         Message.timestamp >= starting_time
+                     ).all()]
+
+    all_messages = sorted(recieved_messages + sent_messages, key=lambda i: i['timestamp'])
+
+    return jsonify(all_messages)
