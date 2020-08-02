@@ -56,6 +56,7 @@ def row2dict(row):
 
 
 @main.route('/api/get-jobs', methods=["GET"])
+@cross_origin()
 def get_jobs():
     data = request.get_json()
     email = get_data(data, "email")
