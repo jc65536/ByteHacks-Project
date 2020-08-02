@@ -53,7 +53,6 @@ def row2dict(row):
     return dict((col, getattr(row, col)) for col in row.__table__.columns.keys())
 
 @main.route('/api/get-jobs', methods=["GET"])
-@cross_origin()
 def get_jobs():
     data = request.get_json()
     email = get_data(data, "email")
@@ -82,7 +81,6 @@ def get_jobs():
 
 
 @main.route('/api/add-job', methods=["POST"])
-@cross_origin()
 @token_required
 def add_job(current_user):
     data = request.get_json()
@@ -115,7 +113,6 @@ def show_page():
 
 
 @main.route("/api/update-job", methods=["POST"])
-@cross_origin()
 @token_required
 def update_job(current_user):
     data = request.get_json()
