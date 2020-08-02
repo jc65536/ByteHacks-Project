@@ -24,6 +24,7 @@ def register_extensions(app):
 
     db.init_app(app)
 
+
 def register_blueprints(app):
     from .main import main
     app.register_blueprint(main)
