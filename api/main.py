@@ -10,11 +10,13 @@ from functools import wraps
 
 main = Blueprint('main', __name__)
 
+
 def get_data(data, property):
     try:
         return data[property]
     except:
         return None
+
 
 def token_required(f):
     @wraps(f)
@@ -52,6 +54,7 @@ def token_required(f):
 def row2dict(row):
     return dict((col, getattr(row, col)) for col in row.__table__.columns.keys())
 
+
 @main.route('/api/get-jobs', methods=["GET"])
 def get_jobs():
     data = request.get_json()
@@ -81,6 +84,7 @@ def get_jobs():
 
 
 @main.route('/api/add-job', methods=["POST"])
+@cross_origin()
 @token_required
 def add_job(current_user):
     data = request.get_json()
@@ -107,12 +111,8 @@ def add_job(current_user):
     )
 
 
-@main.route('/api/add-job-page', methods=["GET"])
-def show_page():
-    return render_template("testing_files/addjob.html")
-
-
 @main.route("/api/update-job", methods=["POST"])
+@cross_origin()
 @token_required
 def update_job(current_user):
     data = request.get_json()
@@ -136,7 +136,9 @@ def update_job(current_user):
         id=job_id
     )
 
+
 # yelp categories searched: employmentagencies, foodbanks, homelessshelters
+@cross_origin()
 @main.route("/api/soup", methods=["GET"])
 def get_soup():
     data = request.get_json(force=True)
@@ -145,14 +147,16 @@ def get_soup():
     yelp_key = secret_file.readline().strip("\n")
 
     place_id = get_data(data, "id")
-    if not(place_id is None):
-        details_response = requests.get("https://api.yelp.com/v3/businesses/" + place_id, headers={"Authorization": "Bearer " + yelp_key})
+    if not (place_id is None):
+        details_response = requests.get("https://api.yelp.com/v3/businesses/" + place_id,
+                                        headers={"Authorization": "Bearer " + yelp_key})
         weekday = datetime.now().weekday()
         try:
             hours = details_response.json()["hours"][0]
             if (hours["is_open_now"]):
-                return {"open": hours["open"][weekday]["start"], "close": hours["open"][weekday]["end"], "open_now": True, "next_open": weekday}
-            else:           # not open could be due to not open on that day or after closing hours
+                return {"open": hours["open"][weekday]["start"], "close": hours["open"][weekday]["end"],
+                        "open_now": True, "next_open": weekday}
+            else:  # not open could be due to not open on that day or after closing hours
                 # search for the next open day
                 closed = True
                 while closed:
@@ -160,39 +164,35 @@ def get_soup():
                     for day in hours["open"]:
                         if day["day"] == weekday:
                             closed = False
-                return {"open": hours["open"][weekday]["start"], "close": hours["open"][weekday]["end"], "open_now": False, "next_open": weekday}
-        except:         # no hours data
+                return {"open": hours["open"][weekday]["start"], "close": hours["open"][weekday]["end"],
+                        "open_now": False, "next_open": weekday}
+        except:  # no hours data
             return "No hours data for this place."
-    
+
     longitude = get_data(data, "longitude")
     latitude = get_data(data, "latitude")
     if ((longitude is None) or (latitude is None)):
         return "Error: no location", 404
-    radius = (data["radius"] or 5) * 1600           # miles to meters
+    radius = (data["radius"] or 5) * 1600  # miles to meters
 
-    yelp_response = requests.get("https://api.yelp.com/v3/businesses/search", params={"longitude": longitude, "latitude": latitude, "radius": radius, "categories": "employmentagencies, foodbanks, homelessshelters"}, headers={"Authorization": "Bearer " + yelp_key})
+    yelp_response = requests.get("https://api.yelp.com/v3/businesses/search",
+                                 params={"longitude": longitude, "latitude": latitude, "radius": radius,
+                                         "categories": "employmentagencies, foodbanks, homelessshelters"},
+                                 headers={"Authorization": "Bearer " + yelp_key})
     businesses = yelp_response.json()["businesses"]
 
     class SimplifiedBusiness:
         def __init__(self, name, address, longitude, latitude, image):
-            self.name = name; self.address = address; self.longitude = longitude; self.latitude = latitude; self.image = image
+            self.name = name;
+            self.address = address;
+            self.longitude = longitude;
+            self.latitude = latitude;
+            self.image = image
 
     simplified_array = []
     for bus in businesses:
-        simplified_array.append(SimplifiedBusiness(bus["name"], "".join(bus["location"]["display_address"]), bus["coordinates"]["longitude"], bus["coordinates"]["latitude"], bus["image_url"]).__dict__)
+        simplified_array.append(SimplifiedBusiness(bus["name"], "".join(bus["location"]["display_address"]),
+                                                   bus["coordinates"]["longitude"], bus["coordinates"]["latitude"],
+                                                   bus["image_url"]).__dict__)
 
     return json.dumps(simplified_array)
-
-
-# Only Testing
-@main.route('/api/update-job-page', methods=['GET'])
-@token_required
-def send_page():
-    return render_template("testing_files/updatejob.html")
-
-
-# Only Testing
-@main.route("/api/successful_login")
-def success():
-    print("Success")
-    return "Success Logging In"

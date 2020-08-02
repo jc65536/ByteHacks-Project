@@ -10,6 +10,7 @@ auth = Blueprint("auth", __name__)
 
 
 @auth.route('/api/login', methods=["GET", "POST"])
+@cross_origin()
 def login():
     data = request.get_json()
 
@@ -33,6 +34,7 @@ def login():
 
 
 @auth.route('/api/register', methods=['POST'])
+@cross_origin()
 def signup():
     data = request.get_json()
     email_check = User.query.filter_by(email=data['email']).first()
