@@ -56,6 +56,7 @@ def row2dict(row):
 
 
 @main.route('/api/get-jobs', methods=["GET"])
+@cross_origin()
 def get_jobs():
     data = request.get_json()
     email = get_data(data, "email")
@@ -69,18 +70,19 @@ def get_jobs():
 
     wanted_jobs = [row2dict(job) for job in all_jobs]
     sort_criteria = get_data(data, "sort")
-    if sort_criteria == "date" or sort_criteria is None:
-        wanted_jobs = sorted(wanted_jobs, key=lambda job: job.date, reverse=True)
+    # if sort_criteria == "date" or sort_criteria is None:
+    #     print(wanted_jobs)
+    #     wanted_jobs = sorted(wanted_jobs, key=lambda job: job.start_date, reverse=True)
     # We might wanna implement this in the future
     # But that's only if we have like a standardized address system such that we can look up location
-    elif sort_criteria == "location":
+    if sort_criteria == "location":
         pass
     elif sort_criteria == "wage":
         wanted_jobs = sorted(wanted_jobs, key=lambda job: job.wage, reverse=True)
     elif sort_criteria == "positions":
         wanted_jobs = sorted(wanted_jobs, key=lambda job: job.positions, reverse=True)
 
-    return jsonify(wanted_jobs)
+    return jsonify({ 'jobs': wanted_jobs })
 
 
 @main.route('/api/add-job', methods=["POST"])

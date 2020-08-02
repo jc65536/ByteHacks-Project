@@ -14,7 +14,7 @@
       <p>Starts {{ convertedStartdate }}</p>
       <p>Ends {{ convertedEnddate }}</p>
     </div>
-    <p class="text-sm m-2">At {{ location }}</p>
+    <p class="text-sm my-2">At {{ location }}</p>
   </div>
 </div>
 </template>

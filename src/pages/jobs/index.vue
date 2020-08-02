@@ -3,26 +3,40 @@
     <h2 class="text-teal-500 text-6xl text-center">
       Find a Job Here
     </h2>
-    <Card
-      title="Farm worker"
-      toptag="1 position left"
-      subtitle="By Strawberry Farms"
-      subtitle2="pays $5/hour"
-      location="somewhere"
-      startdate="2020-08-18T10:15:00.000-07:00"
+    <div v-for="job in jobs" :key="job.id">
+      <Card
+      :title="job.title"
+      :toptag="job.positions + ' position(s) left'"
+      :subtitle="'By ' + job.employer"
+      :subtitle2="'pays ' + job.wage"
+      :location="job.location"
+      :startdate="job.start_date"
+      :enddate="job.end_date"
     >
-      This a really great, well-paying job. You should totally get it.
+      {{ job.description }}
     </Card>
+    </div>
   </div>
 </template>
 
 <script>
-// import axios from '@/plugins/axios'
+import axios from '@/plugins/axios'
 import Card from '@/components/Card'
 
 export default {
   components: {
     Card
+  },
+  data () {
+    return {
+      jobs: []
+    }
+  },
+  asyncData (ctx) {
+    return axios.get('/api/get-jobs')
+    .then((res) => {
+      return res.data
+    })
   }
 }
 </script>
