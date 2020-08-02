@@ -2,7 +2,7 @@ from flask import Blueprint, request, render_template, jsonify, current_app
 from flask_cors import cross_origin
 from .models import Job, User
 from .extensions import db
-import json
+from . import YELP_API_KEY
 import requests
 from datetime import datetime
 import jwt
@@ -84,18 +84,18 @@ def get_jobs():
 
 
 @main.route('/api/add-job', methods=["POST"])
-@cross_origin()
+@cross_origin(supports_credentials=True)
 @token_required
 def add_job(current_user):
     data = request.get_json()
-    title = get_data(data, "title")
+    title = get_data(data, "job")
+    employer = get_data(data, "employer")
     positions = get_data(data, "positions")
     location = get_data(data, "location")
     description = get_data(data, "description")
-    start = get_data(data, "start-date")
-    end = get_data(data, "end-date")
-    wage = get_data(data, "wage")
-    employer = get_data(data, "employer")
+    start = get_data(data, "start")
+    end = get_data(data, "end")
+    wage = get_data(data, "salary")
 
     # Will Assign The Job To Account Who Created It
     email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])['sub']
@@ -112,23 +112,23 @@ def add_job(current_user):
 
 
 @main.route("/api/update-job", methods=["POST"])
-@cross_origin()
+@cross_origin(supports_credentials=True)
 @token_required
 def update_job(current_user):
     data = request.get_json()
     job_id = get_data(data, "id")
     email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])['sub']
-    job = Job.query.filter_by(id=job_id, creator=current_user.email).first()
+    job = Job.query.filter_by(id=job_id, creator=email).first()
     if job:
-        setattr(job, 'title', data["title"] or job.title)
-        setattr(job, 'positions', data["positions"] or job.positions)
-        setattr(job, 'date', data["date"] or job.date)
-        setattr(job, 'start-date', data["start-date"] or job.start_date)
-        setattr(job, 'end-date', data["end-date"] or job.end_date)
-        setattr(job, 'location', data["location"] or job.location)
-        setattr(job, 'description', data["description"] or job.description)
-        setattr(job, 'wage', data["wage"] or job.wage)
-        setattr(job, 'employer', data["employer"] or job.employer)
+        setattr(job, 'title', get_data(data, "title") or job.title)
+        setattr(job, 'positions', get_data(data, "positions") or job.positions)
+        setattr(job, 'date', get_data(data, "date") or job.date)
+        setattr(job, 'start-date', get_data(data, "start-date") or job.start_date)
+        setattr(job, 'end-date', get_data(data, "end-date") or job.end_date)
+        setattr(job, 'location', get_data(data, "location") or job.location)
+        setattr(job, 'description', get_data(data, "description") or job.description)
+        setattr(job, 'wage', get_data(data, "wage") or job.wage)
+        setattr(job, 'employer', get_data(data, "employer") or job.employer)
         db.session.commit()
     else:
         return "Not Authorized to Do This", 401
@@ -142,9 +142,7 @@ def update_job(current_user):
 @main.route("/api/soup", methods=["GET"])
 def get_soup():
     data = request.get_json(force=True)
-    secret_file = open("yelpsecrets", "r")
-    yelp_id = secret_file.readline()
-    yelp_key = secret_file.readline().strip("\n")
+    yelp_key = YELP_API_KEY
 
     place_id = get_data(data, "id")
     if not (place_id is None):
@@ -171,10 +169,12 @@ def get_soup():
 
     longitude = get_data(data, "longitude")
     latitude = get_data(data, "latitude")
-    if ((longitude is None) or (latitude is None)):
-        return "Error: no location", 404
-    radius = (data["radius"] or 5) * 1600  # miles to meters
-
+    if (longitude is None) or (latitude is None):
+        return jsonify({"message":"no location specified"}), 400
+    radius = (get_data(data, "radius") or 5) * 1600  # miles to meters
+    # Note the restriction in radius of https://www.yelp.com/developers/documentation/v3/business_search
+    if radius >= 40000:
+        return jsonify({"message":"radius too large - max is 25 miles"}), 400
     yelp_response = requests.get("https://api.yelp.com/v3/businesses/search",
                                  params={"longitude": longitude, "latitude": latitude, "radius": radius,
                                          "categories": "employmentagencies, foodbanks, homelessshelters"},
@@ -195,4 +195,4 @@ def get_soup():
                                                    bus["coordinates"]["longitude"], bus["coordinates"]["latitude"],
                                                    bus["image_url"]).__dict__)
 
-    return json.dumps(simplified_array)
+    return jsonify(simplified_array)
