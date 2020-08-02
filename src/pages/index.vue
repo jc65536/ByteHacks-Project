@@ -4,6 +4,9 @@
       <h1 class="text-center text-5xl m-5">
         Aid App
       </h1>
+      <p v-if="$store.state.user && $store.state.user.name">
+        Hello, {{ $store.state.user.name }}
+      </p>
       <p>
         Welcome to Great Depression Aid app. Find jobs, trade, and more.
       </p>

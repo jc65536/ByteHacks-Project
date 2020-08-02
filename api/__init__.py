@@ -1,5 +1,6 @@
 from flask import Flask
 import os
+from flask_cors import CORS
 
 SECRET_KEY = os.urandom(32)
 
@@ -9,6 +10,7 @@ def create_app():
     app = Flask(__name__)
     register_extensions(app)
     register_blueprints(app)
+    cors = CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:3000"}})
 
     return app
 
@@ -21,6 +23,7 @@ def register_extensions(app):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
+
 
 def register_blueprints(app):
     from .main import main
