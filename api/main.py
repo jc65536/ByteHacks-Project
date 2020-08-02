@@ -88,14 +88,14 @@ def get_jobs():
 @token_required
 def add_job(current_user):
     data = request.get_json()
-    title = get_data(data, "title")
+    title = get_data(data, "job")
+    employer = get_data(data, "employer")
     positions = get_data(data, "positions")
     location = get_data(data, "location")
     description = get_data(data, "description")
-    start = get_data(data, "start-date")
-    end = get_data(data, "end-date")
-    wage = get_data(data, "wage")
-    employer = get_data(data, "employer")
+    start = get_data(data, "start")
+    end = get_data(data, "end")
+    wage = get_data(data, "salary")
 
     # Will Assign The Job To Account Who Created It
     email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])['sub']

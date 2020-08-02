@@ -15,6 +15,7 @@ export default {
     Navbar
   },
   mounted () {
+    // Check for saved jwt and verify it
     const jwt = localStorage.getItem('jwt')
     if (jwt && this.$store.getters.isValidJWT(jwt)) {
       this.$store.commit('setJWT', jwt)

@@ -1,6 +1,5 @@
 //  import isValidJWT from '../util/auth'
-import axioslib from 'axios'
-const axios = axioslib.create({ baseURL: 'http://localhost:5000' })
+import axios from '@/plugins/axios'
 
 export const state = () => ({
   jwt: '',
