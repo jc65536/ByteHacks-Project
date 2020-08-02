@@ -39,7 +39,7 @@ def signup():
     data = request.get_json()
     email_check = User.query.filter_by(email=data['email']).first()
     if email_check:
-        return jsonify({'message': 'Email already exists in database', 'registered': False})
+        return jsonify({'message': 'Email already exists in database', 'registered': False, 'error': 'email-duplicate'})
     new_user = User(name=data['name'], email=data['email'], password=data['password'])
 
     db.session.add(new_user)
