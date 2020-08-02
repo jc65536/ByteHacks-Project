@@ -1,5 +1,5 @@
 <template>
     <div>
-        Find help - TODO
+        Find soup kitchens - TODO
     </div>
 </template>
