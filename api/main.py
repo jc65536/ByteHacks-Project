@@ -136,6 +136,7 @@ def update_job(current_user):
         id=job_id
     )
 
+
 @cross_origin()
 @main.route("/api/soup-info", methods=['GET'])
 def get_info():
@@ -149,7 +150,7 @@ def get_info():
             hours = details_response.json()["hours"][0]
             if (hours["is_open_now"]):
                 return jsonify({"open": hours["open"][weekday]["start"], "close": hours["open"][weekday]["end"],
-                        "open_now": True, "next_open": weekday, "successful": True})
+                                "open_now": True, "next_open": weekday, "successful": True})
             else:  # not open could be due to not open on that day or after closing hours
                 # search for the next open day
                 closed = True
@@ -159,11 +160,12 @@ def get_info():
                         if day["day"] == weekday:
                             closed = False
                 return jsonify({"open": hours["open"][weekday]["start"], "close": hours["open"][weekday]["end"],
-                        "open_now": False, "next_open": weekday, "successful": True})
+                                "open_now": False, "next_open": weekday, "successful": True})
         except:  # no hours data
             return jsonify({'message': 'No hours data', "successful": False})
     else:
         return jsonify({'message': 'Need place ID', "successful": False}), 400
+
 
 # yelp categories searched: employmentagencies, foodbanks, homelessshelters
 @cross_origin()
@@ -174,11 +176,11 @@ def get_soup():
     longitude = get_data(data, "longitude")
     latitude = get_data(data, "latitude")
     if (longitude is None) or (latitude is None):
-        return jsonify({"message":"no location specified"}), 400
+        return jsonify({"message": "no location specified"}), 400
     radius = (get_data(data, "radius") or 5) * 1600  # miles to meters
     # Note the restriction in radius of https://www.yelp.com/developers/documentation/v3/business_search
     if radius >= 40000:
-        return jsonify({"message":"radius too large - max is 25 miles"}), 400
+        return jsonify({"message": "radius too large - max is 25 miles"}), 400
     yelp_response = requests.get("https://api.yelp.com/v3/businesses/search",
                                  params={"longitude": longitude, "latitude": latitude, "radius": radius,
                                          "categories": "employmentagencies, foodbanks, homelessshelters"},
@@ -186,17 +188,18 @@ def get_soup():
     businesses = yelp_response.json()["businesses"]
 
     class SimplifiedBusiness:
-        def __init__(self, name, address, longitude, latitude, image):
+        def __init__(self, name, address, longitude, latitude, image, id):
             self.name = name;
             self.address = address;
             self.longitude = longitude;
             self.latitude = latitude;
             self.image = image
+            self.id=id
 
     simplified_array = []
     for bus in businesses:
         simplified_array.append(SimplifiedBusiness(bus["name"], "".join(bus["location"]["display_address"]),
                                                    bus["coordinates"]["longitude"], bus["coordinates"]["latitude"],
-                                                   bus["image_url"]).__dict__)
+                                                   bus["image_url"], bus["id"]).__dict__)
 
     return jsonify(simplified_array)
