@@ -58,7 +58,7 @@ def row2dict(row):
 @main.route('/api/get-jobs', methods=["GET"])
 @cross_origin()
 def get_jobs():
-    data = request.get_json()
+    data = request.args.to_dict()
     email = get_data(data, "email")
     employer = get_data(data, 'employer')
     if email is None and employer is None:

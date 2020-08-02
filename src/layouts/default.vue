@@ -8,6 +8,7 @@
 </template>
 
 <script>
+import { EventBus } from '@/plugins/event'
 import Navbar from '../components/Navbar'
 
 export default {
@@ -24,6 +25,7 @@ export default {
         name: this.$store.getters.JWTProperty('name')
       })
     }
+    EventBus.$emit('userChanged')
   }
 }
 </script>

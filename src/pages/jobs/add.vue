@@ -32,7 +32,7 @@
         <Datetime
           type="datetime"
           v-model="form.start"
-          minute-step="15"
+          :minute-step="15"
           use12-hour
           value-zone="America/Los_Angeles"
           class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500"
@@ -46,7 +46,7 @@
         <Datetime
           type="datetime"
           v-model="form.end"
-          minute-step="15"
+          :minute-step="15"
           use12-hour
           value-zone="America/Los_Angeles"
           class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500"
