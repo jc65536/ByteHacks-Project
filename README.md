@@ -16,4 +16,9 @@ set FLASK_APP=api (Windows CMD)
 flask run
 ```
 
+```
+# Set flask to dev mode
+export FLASK_ENV=development
+```
+
 or run `run.bat` if you're on Windows
