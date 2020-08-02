@@ -14,8 +14,8 @@ Running Flask App:
 export FLASK_APP=api (Unix)
 set FLASK_APP=api (Windows CMD)
 
-export YELP_API_KEY=api (Unix)
-set YELP_API_KEY=api (Windows CMD)
+export YELP_API_KEY=API_KEY_HERE (Unix)
+set YELP_API_KEY=API_KEY_HERE (Windows CMD)
 
 flask run
 ```
