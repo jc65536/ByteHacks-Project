@@ -1,9 +1,6 @@
 # ByteHacks-Project
 The Haphazard Hackers' project.
 
-### Configuration
-You must configure the `YELP-API-KEY` field in config.json.
-
 ### How to run backend
 
 Installing Dependencies:<br>
@@ -16,7 +13,16 @@ Running Flask App:
 ```shell
 export FLASK_APP=api (Unix)
 set FLASK_APP=api (Windows CMD)
+
+export YELP_API_KEY=api (Unix)
+set YELP_API_KEY=api (Windows CMD)
+
 flask run
+```
+
+```
+# Set flask to dev mode
+export FLASK_ENV=development
 ```
 
 or run `run.bat` if you're on Windows

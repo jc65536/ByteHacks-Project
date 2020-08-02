@@ -23,19 +23,35 @@
         <label class="block text-gray-700 text-xl font-bold mb-2">
           Positions Available
         </label>
-        <input v-model="form.postions" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" type="number" placeholder="How many people can you hire?">
+        <input v-model="form.positions" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" type="number" placeholder="How many people can you hire?">
       </div>
       <div class="md:items-center mb-6">
         <label class="block text-gray-700 text-xl font-bold mb-2">
           Job starting date/time
         </label>
-        <Datetime type="datetime" v-model="form.start" use12-hour class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" placeholder="Click here to pick"></Datetime>
+        <Datetime
+          type="datetime"
+          v-model="form.start"
+          :minute-step="15"
+          use12-hour
+          value-zone="America/Los_Angeles"
+          class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500"
+          placeholder="Click here to pick"
+        ></Datetime>
       </div>
       <div class="md:items-center mb-6">
         <label class="block text-gray-700 text-xl font-bold mb-2">
           Job ending date/time
         </label>
-        <Datetime type="datetime" v-model="form.end" use12-hour class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" placeholder="Click here to pick"></Datetime>
+        <Datetime
+          type="datetime"
+          v-model="form.end"
+          :minute-step="15"
+          use12-hour
+          value-zone="America/Los_Angeles"
+          class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500"
+          placeholder="Click here to pick"
+        ></Datetime>
       </div>
       <div class="md:items-center mb-6">
         <label class="block text-gray-700 text-xl font-bold mb-2">
@@ -86,7 +102,11 @@ export default {
       .then((res) => {
         alert(`Job posted! Job id ${res.data.id}`)
       })
-      .catch(err => alert(err))
+      .catch((err) => {
+        if (err.response.status === 401) {
+        }
+        alert(err)
+      })
     }
   }
 }

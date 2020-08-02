@@ -1,10 +1,42 @@
 <template>
   <div>
     <h2 class="text-teal-500 text-6xl text-center">
-      Find a New Job Here
+      Find a Job Here
     </h2>
-    <box class="shadow bg-teal-500 hover:bg-teal-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded" type="box">
-      Button
-    </box>
+    <div v-for="job in jobs" :key="job.id">
+      <Card
+      :title="job.title"
+      :toptag="job.positions + ' position(s) left'"
+      :subtitle="'By ' + job.employer"
+      :subtitle2="'pays ' + job.wage"
+      :location="job.location"
+      :startdate="job.start_date"
+      :enddate="job.end_date"
+    >
+      {{ job.description }}
+    </Card>
+    </div>
   </div>
 </template>
+
+<script>
+import axios from '@/plugins/axios'
+import Card from '@/components/Card'
+
+export default {
+  components: {
+    Card
+  },
+  data () {
+    return {
+      jobs: []
+    }
+  },
+  asyncData (ctx) {
+    return axios.get('/api/get-jobs')
+    .then((res) => {
+      return res.data
+    })
+  }
+}
+</script>
