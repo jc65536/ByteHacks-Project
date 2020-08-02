@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app
 from flask_cors import cross_origin
 from .models import Job, User
 from .extensions import db
@@ -139,23 +139,20 @@ def update_job(current_user):
     )
 
 
-# yelp categories searched: employmentagencies, foodbanks, homelessshelters
 @cross_origin()
-@main.route("/api/soup", methods=["GET"])
-def get_soup():
-    data = request.get_json(force=True)
-    yelp_key = YELP_API_KEY
-
+@main.route("/api/soup-info", methods=['GET'])
+def get_info():
+    data = request.get_json()
     place_id = get_data(data, "id")
-    if not (place_id is None):
+    if place_id:
         details_response = requests.get("https://api.yelp.com/v3/businesses/" + place_id,
-                                        headers={"Authorization": "Bearer " + yelp_key})
+                                        headers={"Authorization": "Bearer " + YELP_API_KEY})
         weekday = datetime.now().weekday()
         try:
             hours = details_response.json()["hours"][0]
             if (hours["is_open_now"]):
-                return {"open": hours["open"][weekday]["start"], "close": hours["open"][weekday]["end"],
-                        "open_now": True, "next_open": weekday}
+                return jsonify({"open": hours["open"][weekday]["start"], "close": hours["open"][weekday]["end"],
+                                "open_now": True, "next_open": weekday, "successful": True})
             else:  # not open could be due to not open on that day or after closing hours
                 # search for the next open day
                 closed = True
@@ -164,37 +161,47 @@ def get_soup():
                     for day in hours["open"]:
                         if day["day"] == weekday:
                             closed = False
-                return {"open": hours["open"][weekday]["start"], "close": hours["open"][weekday]["end"],
-                        "open_now": False, "next_open": weekday}
+                return jsonify({"open": hours["open"][weekday]["start"], "close": hours["open"][weekday]["end"],
+                                "open_now": False, "next_open": weekday, "successful": True})
         except:  # no hours data
-            return "No hours data for this place."
+            return jsonify({'message': 'No hours data', "successful": False})
+    else:
+        return jsonify({'message': 'Need place ID', "successful": False}), 400
+
+
+# yelp categories searched: employmentagencies, foodbanks, homelessshelters
+@cross_origin()
+@main.route("/api/soup", methods=["GET"])
+def get_soup():
+    data = request.get_json()
 
     longitude = get_data(data, "longitude")
     latitude = get_data(data, "latitude")
     if (longitude is None) or (latitude is None):
-        return jsonify({"message":"no location specified"}), 400
+        return jsonify({"message": "no location specified"}), 400
     radius = (get_data(data, "radius") or 5) * 1600  # miles to meters
     # Note the restriction in radius of https://www.yelp.com/developers/documentation/v3/business_search
     if radius >= 40000:
-        return jsonify({"message":"radius too large - max is 25 miles"}), 400
+        return jsonify({"message": "radius too large - max is 25 miles"}), 400
     yelp_response = requests.get("https://api.yelp.com/v3/businesses/search",
                                  params={"longitude": longitude, "latitude": latitude, "radius": radius,
                                          "categories": "employmentagencies, foodbanks, homelessshelters"},
-                                 headers={"Authorization": "Bearer " + yelp_key})
+                                 headers={"Authorization": "Bearer " + YELP_API_KEY})
     businesses = yelp_response.json()["businesses"]
 
     class SimplifiedBusiness:
-        def __init__(self, name, address, longitude, latitude, image):
+        def __init__(self, name, address, longitude, latitude, image, id):
             self.name = name;
             self.address = address;
             self.longitude = longitude;
             self.latitude = latitude;
             self.image = image
+            self.id=id
 
     simplified_array = []
     for bus in businesses:
         simplified_array.append(SimplifiedBusiness(bus["name"], "".join(bus["location"]["display_address"]),
                                                    bus["coordinates"]["longitude"], bus["coordinates"]["latitude"],
-                                                   bus["image_url"]).__dict__)
+                                                   bus["image_url"], bus["id"]).__dict__)
 
     return jsonify(simplified_array)
