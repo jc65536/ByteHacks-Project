@@ -30,7 +30,7 @@ export default {
     submit (form) {
       axios.post('/api/update-job', form, this)
       .then((res) => {
-        alert(`Job updates! Job id ${res.data.id}`)
+        alert(`Job updated! Job id ${res.data.id}`)
       })
       .catch((err) => {
         if (err.response.status === 401) {
