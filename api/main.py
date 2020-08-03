@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_cors import cross_origin
-from .models import Job, User, Message
+from .models import Job, User, Message, Application
 from .extensions import db
 from . import YELP_API_KEY
 import requests
@@ -273,3 +273,47 @@ def recv_message(current_user):
     sent_messages = sorted(sent_messages, key=lambda i: i['timestamp'])
 
     return jsonify({ 'received': received_messages, 'sent': sent_messages })
+
+
+@main.route("/api/apply", methods=['POST'])
+@cross_origin()
+def apply():
+    data = request.get_json()
+
+    name = get_data(data, 'name')
+    email = get_data(data, 'email')
+    job_id = get_data(data, 'job-id')
+    description = get_data(data, 'description')
+    ip = request.remote_addr
+
+    if (not name) or (not job_id) or (not email):
+        return jsonify({'message': 'missing parameters', 'success': False}), 400
+
+    requested_job = Job.query.filter_by(id=job_id).first(), 400
+
+    if not requested_job:
+        return jsonify({'message': 'job-id not found in database', 'success': False}), 400
+
+    same_email = Application.query.filter_by(email=email, job_id=job_id).first()
+    same_ip = Application.query.filter_by(job_id=job_id, ip_address=ip).first()
+
+    if same_email or same_ip:
+        return jsonify({'has-applied': True, 'success': False})
+
+    new_application = Application(name=name, email=email, description=description, ip_address=ip, job_id=job_id)
+    db.session.add(new_application)
+    db.session.commit()
+
+    return jsonify({'has-applied': False, 'success': True})
+
+@main.route('/api/get-applicants', methods=['GET'])
+@cross_origin()
+def get_apps():
+    data = request.args
+
+    job_id = get_data(data, 'job-id')
+    applications = Application.query.filter_by(job_id=job_id).all()
+
+    application_list = [row2dict(application) for application in applications]
+
+    return jsonify(application_list)
