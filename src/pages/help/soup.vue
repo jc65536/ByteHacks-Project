@@ -142,11 +142,9 @@ export default {
       if (!place.details) {
         // make request for details for this place
         axios
-          .get("http://localhost:5000/api/soup-info", {
-            params: {
+          .get("/api/soup-info", {
               id: place.id,
-            },
-          })
+            })
           .then((response) => {
             var data = response.data;
             var detailsString = "";
