@@ -35,9 +35,9 @@ export default {
       })
       .catch((err) => {
         console.log(err)
-        if (err.response.status === 401) {
-          this.error = 'Your session has been invalidated. Please sign in again.'
-        } else alert(err)
+        if (err.response.status === 401) this.error = 'Your session has been invalidated. Please sign in again.'
+        else if (err.response.status === 400) this.error = 'Please make sure all fields are valid'
+        else alert(err)
       })
     }
   }

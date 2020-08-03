@@ -9,6 +9,7 @@
 
 <script>
 import { EventBus } from '@/plugins/event'
+import axios from '@/plugins/axios'
 import Navbar from '../components/Navbar'
 
 export default {
@@ -23,6 +24,11 @@ export default {
       this.$store.commit('setUserData', {
         email: this.$store.getters.JWTProperty('sub'),
         name: this.$store.getters.JWTProperty('name')
+      })
+
+      axios.post('/api/verify-token', {}, this)
+      .catch((err) => {
+        if (err.response.status === 401) this.$store.dispatch('logout')
       })
     }
     EventBus.$emit('userChanged')

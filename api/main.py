@@ -78,7 +78,7 @@ def get_jobs():
     wanted_jobs = [row2dict(job) for job in all_jobs]
     sort_criteria = get_data(data, "sort")
     if sort_criteria == "date" or sort_criteria is None:
-        wanted_jobs = sorted(wanted_jobs, key=lambda job: dateSort)
+        wanted_jobs = sorted(wanted_jobs, key=dateSort)
     elif sort_criteria == "positions":
         wanted_jobs = sorted(wanted_jobs, key=lambda job: job.positions, reverse=True)
 
@@ -100,7 +100,7 @@ def add_job(current_user):
     wage = get_data(data, "wage")
 
     if (title is None or employer is None or positions is None or location is None or description is None or start is None or end is None or wage is None):
-        return "Fields are missing!", 401
+        return "Fields are missing!", 400
 
     # Will Assign The Job To Account Who Created It
     email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])['sub']
