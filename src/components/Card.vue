@@ -58,7 +58,7 @@ export default {
     'editlink',
     'deletelink',
     'titlelink',
-    'applylink'
+    'applylink',
     'replyerror',
     'replysuccess',
     'replyemail',
