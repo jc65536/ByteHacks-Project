@@ -29,7 +29,7 @@
             </button>
             <ul class="dropdown-menu absolute hidden text-gray-700 pt-1">
               <li class=""><n-link to='/help/soup' class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap">Soup kitchens &amp; Shelters</n-link></li>
-              <li class=""><n-link to='/help' class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap rounded-b ">Helpful resources</n-link></li>
+              <li class=""><n-link to='/help/alphabet' class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap rounded-b ">Info on the Alphabet Agencies</n-link></li>
             </ul>
           </div>
           <div class="block mt-4 lg:inline-block lg:mt-0 hover:text-white mr-4 dropdown">
