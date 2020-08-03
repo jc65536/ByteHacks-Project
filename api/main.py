@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_cors import cross_origin
-from .models import Job, User, Message, Application
+from .models import Job, User, Message
 from .extensions import db
 from . import YELP_API_KEY
 import requests
@@ -17,6 +17,7 @@ def get_data(data, property):
         return data[property]
     except:
         return None
+
 
 def token_required(f):
     @wraps(f)
@@ -82,7 +83,7 @@ def get_jobs():
     elif sort_criteria == "positions":
         wanted_jobs = sorted(wanted_jobs, key=lambda job: job.positions, reverse=True)
 
-    return jsonify({ 'jobs': wanted_jobs })
+    return jsonify({'jobs': wanted_jobs})
 
 
 @main.route('/api/add-job', methods=["POST"])
@@ -167,14 +168,16 @@ def get_info():
                     i += 1
                     for day in hours["open"]:
                         if day["day"] == weekday:
-                            return jsonify({"open": hours["open"][weekday]["start"], "close": hours["open"][weekday]["end"],
-                                "open_now": False, "next_open": weekday, "successful": True})
+                            return jsonify(
+                                {"open": hours["open"][weekday]["start"], "close": hours["open"][weekday]["end"],
+                                 "open_now": False, "next_open": weekday, "successful": True})
                     weekday = (weekday + 1) % 7
                 return jsonify({'message': 'No hours data', "successful": False})
         except:  # no hours data
             return jsonify({'message': 'No hours data', "successful": False})
     else:
         return jsonify({'message': 'Need place ID', "successful": False}), 400
+
 
 # yelp categories searched: employmentagencies, foodbanks, homelessshelters
 @main.route("/api/soup", methods=["GET"])
@@ -189,7 +192,7 @@ def get_soup():
     # Note the restriction in radius of https://www.yelp.com/developers/documentation/v3/business_search
     if radius > 40000:
         return jsonify({"message": "radius too large - max is 25 miles"}), 400
-    
+
     yelp_response = requests.get("https://api.yelp.com/v3/businesses/search",
                                  params={"longitude": longitude, "latitude": latitude, "radius": radius,
                                          "categories": "employmentagencies, foodbanks, homelessshelters"},
@@ -203,7 +206,7 @@ def get_soup():
             self.longitude = longitude
             self.latitude = latitude
             self.image = image
-            self.id=id
+            self.id = id
 
     simplified_array = []
     for bus in businesses:
@@ -249,7 +252,7 @@ def send_message(current_user):
 @token_required
 def recv_message(current_user):
     data = request.args.to_dict()
-    
+
     requestor = current_user
 
     starting_time = 0
@@ -274,48 +277,4 @@ def recv_message(current_user):
     sent_messages = sorted(sent_messages, key=lambda i: i['timestamp'], reverse=True)
     all_messages = sorted(sent_messages + received_messages, key=lambda i: i['timestamp'], reverse=True)
 
-    return jsonify({ 'received': received_messages, 'sent': sent_messages, 'all_messages': all_messages})
-
-4
-@main.route("/api/apply", methods=['POST'])
-@cross_origin()
-def apply():
-    data = request.get_json()
-
-    name = get_data(data, 'name')
-    email = get_data(data, 'email')
-    job_id = get_data(data, 'job-id')
-    description = get_data(data, 'description')
-    ip = request.remote_addr
-
-    if (not name) or (not job_id) or (not email):
-        return jsonify({'message': 'missing parameters', 'success': False}), 400
-
-    requested_job = Job.query.filter_by(id=job_id).first(), 400
-
-    if not requested_job:
-        return jsonify({'message': 'job-id not found in database', 'success': False}), 400
-
-    same_email = Application.query.filter_by(email=email, job_id=job_id).first()
-    same_ip = Application.query.filter_by(job_id=job_id, ip_address=ip).first()
-
-    if same_email or same_ip:
-        return jsonify({'has-applied': True, 'success': False})
-
-    new_application = Application(name=name, email=email, description=description, ip_address=ip, job_id=job_id)
-    db.session.add(new_application)
-    db.session.commit()
-
-    return jsonify({'has-applied': False, 'success': True})
-
-@main.route('/api/get-applicants', methods=['GET'])
-@cross_origin()
-def get_apps():
-    data = request.args
-
-    job_id = get_data(data, 'job-id')
-    applications = Application.query.filter_by(job_id=job_id).all()
-
-    application_list = [row2dict(application) for application in applications]
-
-    return jsonify(application_list)
+    return jsonify({'received': received_messages, 'sent': sent_messages, 'all_messages': all_messages})

@@ -3,15 +3,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import time
 
 
-class Application(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    email = db.Column(db.String)
-    description = db.Column(db.Text)
-    ip_address = db.Column(db.String)
-    job_id = db.Column(db.Integer, nullable=False)
-
-
 class Job(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text)
