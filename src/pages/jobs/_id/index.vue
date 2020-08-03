@@ -16,12 +16,13 @@
       {{ job.description }}
     </Card>
     <div v-if="$store.state.user && job.creator !== $store.state.user.email" class="text-center max-w-xs mx-auto">
-      <textarea v-model="message" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500"  placeholder="Send a message to the employer"></textarea>
+      <textarea v-model="message" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500"  placeholder="Send a message to the employer, or type your application here"></textarea>
       <p class="text-sm text-green-600">{{ messageSuccess }}</p>
       <p class="text-sm text-red-600">{{ messageError }}</p>
       <button class="bg-blue-600 rounded-md m-2 p-2 font-bold text-gray-200" @click="sendMessage">Send Message</button>
+      <button class="bg-orange-600 rounded-md m-2 p-2 font-bold text-gray-200" @click="apply">Apply</button>
     </div>
-    <p v-if="!$store.state.user" class="text-center text-gray-600 text-sm"><n-link to='/account/login'>Sign in to send a message to the employer</n-link></p>
+    <p v-if="!$store.state.user" class="text-center text-gray-600 text-sm"><n-link to='/account/login'>Sign in to apply or send a message to the employer</n-link></p>
     <div v-if="$store.state.user && job.creator === $store.state.user.email" class="text-center w-full">
       <p class="text-sm text-red-600">{{ error }}</p>
       <n-link :to="'/jobs/' + job.id + '/edit'">
@@ -66,10 +67,13 @@ export default {
         } else alert(err)
       })
     },
-    sendMessage () {
-      axios.post('/api/send-message', { recipient: this.job.creator, message: this.message, subject: `Job listing: ${this.job.title}` }, this)
+    sendMessage (application) {
+
+      const subject = application === true ? `APPLICATION for: ${this.job.title}` : `Job listing: ${this.job.title}` // why is this redundant condition necesarry, wtf js
+  
+      axios.post('/api/send-message', { recipient: this.job.creator, subject, message: this.message }, this)
       .then((res) => {
-        this.messageSuccess = 'Message sent!'
+        this.messageSuccess = 'Sent successfully!'
         this.messageError = ''
         this.message = ''
       })
@@ -82,6 +86,9 @@ export default {
           this.messageSuccess = ''
         }
       })
+    },
+    apply () {
+      this.sendMessage(true)
     }
   }
 }

@@ -1,6 +1,7 @@
 <template>
 <div>
   <div class="w-full max-w-xs mx-auto my-10 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <p class="text-sm text-orange-600 font-bold">{{ topwarning }}</p>
     <div class="text-white font-bold text-xs bg-gray-500 px-1 rounded-lg inline-block">{{ toptag }}</div>
     <span class="my-2 block">
       <div v-if="titlelink" class="text-gray-900 font-bold text-xl my-2 border-b-2 border-blue-700 inline"><n-link :to="titlelink">{{ title }}</n-link></div>
@@ -19,7 +20,7 @@
     <n-link v-if='editlink' :to='editlink' class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">Edit</n-link>
     <n-link v-if='deletelink' :to='deletelink' class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">Delete</n-link>
     <n-link v-if="applylink" :to="applylink" class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">Apply</n-link>
-    <button v-if='replyemail' @click="showReplyBox = !showReplyBox" class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">Reply</button>
+    <button v-if='replyemail' @click="showReplyBox = !showReplyBox" class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">{{ showReplyBox ? 'Hide reply' : 'Reply' }}</button>
     <div v-if="showReplyBox">
       <textarea v-model="message" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500"  placeholder="Reply here..."></textarea>
       <p class="text-sm text-green-600">{{ replysuccess }}</p>
@@ -52,6 +53,7 @@ export default {
     'subtitle',
     'subtitle2',
     'toptag',
+    'topwarning',
     'startdate',
     'enddate',
     'location',

@@ -5,16 +5,18 @@
     </h2>
     <p class="text-center">{{ $store.state.user.email }}</p>
     <div v-if="messages.length" class="text-center">
-      <h3 class="text-4xl text-center border-t border-gray-500 mt-5 pt-4">My Messages</h3>
+      <h3 class="text-4xl text-center border-t border-gray-500 mt-5 pt-4">Messages &amp; Applications</h3>
       <a href="#" @click="showMessages = !showMessages" class="underline">{{ showMessages ? 'Hide messages' : 'Show messages' }}</a>
       &middot;
-      <a href="#" @click="showMyReplies = !showMyReplies" class="underline">{{ showMyReplies ? 'Hide my replies' : 'Show my replies' }}</a>
+      <a href="#" @click="showMyReplies = !showMyReplies" class="underline">{{ showMyReplies ? 'Hide sent messages' : 'Show sent messages' }}</a>
+      &middot;
+      <a href="#" @click="onlyShowApps = !onlyShowApps" class="underline">{{ onlyShowApps ? 'Show all messages' : 'Only show applications' }}</a>
       <div v-if="showMessages">
         <div v-for="msg in messages" :key="msg.id">
           <Card
-            v-if="msg.sender_email !== $store.state.user.email" 
+            v-if="msg.sender_email !== $store.state.user.email && !onlyShowApps && !msg.subject.startsWith('APPLICATION')" 
             :toptag="'from ' + msg.sender_email"
-            :subtitle="'Subject: ' + msg.subject"
+            :subtitle="msg.subject"
             :replyemail="msg.sender_email"
             :replysubject="msg.subject"
             :replyerror="replyError"
@@ -24,9 +26,32 @@
             {{ msg.message }}
           </Card>
           <Card
-            v-else-if="showMyReplies" 
+            v-else-if="msg.sender_email !== $store.state.user.email && msg.subject.startsWith('APPLICATION')" 
+            :toptag="'from ' + msg.sender_email"
+            topwarning="This is a job application."
+            :subtitle=" msg.subject"
+            subtitle2="Please make sure to update your job listing with available positions."
+            :replyemail="msg.sender_email"
+            :replysubject="msg.subject"
+            :replyerror="replyError"
+            :replysuccess="replySuccess"
+            @submitReply="reply"
+          >
+            {{ msg.message }}
+          </Card>
+          <Card
+            v-else-if="msg.subject.startsWith('APPLICATION')" 
+            :toptag="'to ' + msg.receiver_email"
+            topwarning="You sent this application"
+            :subtitle="msg.subject"
+            @submitReply="reply"
+          >
+            {{ msg.message }}
+          </Card>
+          <Card
+            v-else-if="showMyReplies && !onlyShowApps" 
             :toptag="'Sent to ' + msg.receiver_email"
-            :subtitle="'Subject: ' + msg.subject"
+            :subtitle="msg.subject"
             @submitReply="reply"
           >
             {{ msg.message }}
@@ -67,7 +92,8 @@ export default {
       replyError: '',
       replySuccess: '',
       showMessages: true,
-      showMyReplies: false
+      showMyReplies: false,
+      onlyShowApps: false
     }
   },
   mounted () {

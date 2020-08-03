@@ -13,7 +13,6 @@
       :location="job.location"
       :startdate="job.start_date"
       :enddate="job.end_date"
-      :applylink="'/jobs/'+job.id+'/apply'"
     >
       {{ job.description }}
     </Card>
