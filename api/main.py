@@ -275,7 +275,7 @@ def recv_message(current_user):
 
     return jsonify({ 'received': received_messages, 'sent': sent_messages, 'all_messages': all_messages})
 
-
+4
 @main.route("/api/apply", methods=['POST'])
 @cross_origin()
 def apply():

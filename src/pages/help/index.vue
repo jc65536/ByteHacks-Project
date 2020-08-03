@@ -1,13 +1,12 @@
 <template>
-  <div class="place-card">
-    <div style="display: flex; flex-direction: column">
-      <div>
-        <p class="card-title">AAA - Agricultural Adjustment Administration</p>
-      </div>
-      <div>
-        <p>Designed to boost agricultural production by primarily reducing surpluses of agricultural goods.</p>
-      </div>
-    </div>
+  <div>
+    <h2 class="text-teal-500 text-6xl text-center">
+      Get Help
+    </h2>
+    <h3 class="text-center text-lg underline">
+      <n-link to='/help/soup' class="block">Aid Establishments</n-link>
+      <n-link to='/help/alphabet' class="block">Alphabet Agencies</n-link>
+    </h3>
   </div>
 </template>
 

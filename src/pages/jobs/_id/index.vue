@@ -89,6 +89,7 @@ export default {
       })
     },
     apply () {
+      if (!confirm("Are you sure you want to submit your application?")) return
       this.sendMessage(true)
     }
   }

@@ -28,11 +28,11 @@
               <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/> </svg>
             </button>
             <ul class="dropdown-menu absolute hidden text-gray-700 pt-1">
-              <li class=""><n-link to='/help/soup' class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap">Soup kitchens &amp; Shelters</n-link></li>
+              <li class=""><n-link to='/help/soup' class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap">Soup kitchens, Shelters, &amp; Employment Agencies</n-link></li>
               <li class=""><n-link to='/help/alphabet' class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap rounded-b ">Info on the Alphabet Agencies</n-link></li>
             </ul>
           </div>
-          <div class="block mt-4 lg:inline-block lg:mt-0 hover:text-white mr-4 dropdown">
+          <!-- <div class="block mt-4 lg:inline-block lg:mt-0 hover:text-white mr-4 dropdown">
             <button class="text-teal-200 rounded inline-flex items-center">
               <span class="mr-1">Trade</span>
               <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/> </svg>
@@ -42,7 +42,7 @@
               <li class=""><n-link to='/trade/request' class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap">Request an item</n-link></li>
               <li class=""><n-link to='/trade/add' class="bg-gray-200 hover:bg-gray-400 py-2 px-4 block whitespace-no-wrap rounded-b ">Add an item</n-link></li>
             </ul>
-          </div>
+          </div> -->
         </div>
       <div v-if="$store.state.user && $store.state.user.email">
         <n-link to="/account" class="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">

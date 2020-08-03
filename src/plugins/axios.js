@@ -1,5 +1,5 @@
 import axioslib from 'axios'
-const axios = axioslib.create({ baseURL: 'http://localhost:5000' })
+const axios = axioslib.create({ baseURL: `http://${window.location.hostname}:5000` })
 
 // Wrapper arround axios to add auth headers and stuff. I couldn't figure out a better way to do this...
 export default {

@@ -1,10 +1,10 @@
 <template>
-  <div class.txt= "txt">
+  <div>
       <h2 class="text-teal-500 text-6xl text-center">
         Create a new job
       </h2>
-      <h3 class="text-center text-teal-500 text-xl">
-        Answer the questions below and type the answers in the box below.  Once you are done, click on Submit.
+      <h3 class="text-center text-lg">
+        Fill out the form below to create a job listing. Prospective employees will be able to see your email and send messages and applications to you.
       </h3>
       <JobForm @submitForm="submit" :error="error" />
   </div>
@@ -30,8 +30,7 @@ export default {
     submit (form) {
       axios.post('/api/add-job', form, this)
       .then((res) => {
-        alert(`Job posted! Job id is ${res.data.id}`)
-        this.$router.push('/account')
+        this.$router.push('/jobs/' + res.data.id)
       })
       .catch((err) => {
         console.log(err)

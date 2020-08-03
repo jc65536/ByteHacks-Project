@@ -28,7 +28,7 @@
           <Card
             v-else-if="msg.sender_email !== $store.state.user.email && msg.subject.startsWith('APPLICATION')" 
             :toptag="'from ' + msg.sender_email"
-            topwarning="This is a job application."
+            topwarning="Application"
             :subtitle=" msg.subject"
             subtitle2="Please make sure to update your job listing with available positions."
             :replyemail="msg.sender_email"

@@ -14,8 +14,9 @@
         Created for Byte Hacks 2020
       </p>
       <p class="my-5">
-        The Great Depression is tough. That's why we created this app for you. Do you need a job quickly but don't want to spend time knocking on doors or filling out time-consuming applications or interviews? <n-link to='/jobs'>Look here!</n-link> Need info about government aid programs and other helpful organizations and resources? <n-link to='/help'>We've got you covered!</n-link> Do you need something but don't have the money? <n-link to='/trade'>Try trading for it!</n-link>  Anything else, look at the bar on the top.
+        The Great Depression is tough. That's why we created this app for you. Do you need a job quickly but don't want to spend time knocking on doors or filling out time-consuming applications or interviews? <n-link to='/jobs'>Look here!</n-link> Need info about government aid programs, employment agencies, and other helpful organizations and resources? <n-link to='/help'>We've got you covered!</n-link>
       </p>
+      <p>We have more features coming soon - for example, do you need something but don't have the money? You can trade for it</p>
     </div>
   </div>
 </template>

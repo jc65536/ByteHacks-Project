@@ -50,7 +50,7 @@
     <label class="block text-gray-700 text-xl font-bold mb-2">
       Job location
     </label>
-    <input v-model="form.location" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" type="text" placeholder="Where does the job take place at?">
+    <input v-model="form.location" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" type="text" placeholder="What's the address?">
   </div>
   <div class="md:items-center mb-6">
     <label class="block text-gray-700 text-xl font-bold mb-2" for="inline-full-name">
@@ -62,6 +62,7 @@
     <label class="block text-gray-700 text-xl font-bold mb-2" for="inline-full-name">
       Description of the job
     </label>
+    <p class="m-2 text-gray-700 text-sm">Make sure to specify whether or not this job requires an applicaion.</p>
     <textarea v-model="form.description" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500"  placeholder="Short Job Description"></textarea>
     <p class="text-sm text-red-600">{{ error }}</p>
   </div>
