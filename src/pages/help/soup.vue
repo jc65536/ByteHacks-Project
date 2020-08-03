@@ -35,7 +35,7 @@
       </li>
     </ul>
     <l-map
-      v-if="view=='map'"
+      v-if="view==='map'"
       :zoom="zoom"
       :center="center"
       :options="mapOptions"
@@ -58,10 +58,12 @@
 </template>
 
 <script>
-import "leaflet/dist/leaflet.css";
-import { latLng } from "leaflet";
-import { LMap, LTileLayer, LMarker, LPopup, LTooltip } from "vue2-leaflet";
-import axios from "axios";
+/* eslint-disable */ // because ESLINT BAD
+
+import "leaflet/dist/leaflet.css"
+import { latLng } from "leaflet"
+import { LMap, LTileLayer, LMarker, LPopup, LTooltip } from "vue2-leaflet"
+import axios from "@/plugins/axios"
 
 export default {
   name: "Example",
@@ -108,12 +110,10 @@ export default {
     },
     searchSoup() {
       axios
-        .get("http://localhost:5000/api/soup", {
-          params: {
+        .get("/api/soup", {
             longitude: this.center.lng,
             latitude: this.center.lat,
-            radius: this.radius,
-          },
+            radius: this.radius
         })
         .then((response) => {
           this.places = response.data;
@@ -142,11 +142,9 @@ export default {
       if (!place.details) {
         // make request for details for this place
         axios
-          .get("http://localhost:5000/api/soup-info", {
-            params: {
+          .get("/api/soup-info", {
               id: place.id,
-            },
-          })
+            })
           .then((response) => {
             var data = response.data;
             var detailsString = "";
