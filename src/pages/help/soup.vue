@@ -58,10 +58,12 @@
 </template>
 
 <script>
-import "leaflet/dist/leaflet.css";
-import { latLng } from "leaflet";
-import { LMap, LTileLayer, LMarker, LPopup, LTooltip } from "vue2-leaflet";
-import axios from "axios";
+/* eslint-disable */
+
+import "leaflet/dist/leaflet.css"
+import { latLng } from "leaflet"
+import { LMap, LTileLayer, LMarker, LPopup, LTooltip } from "vue2-leaflet"
+import axios from "axios"
 
 export default {
   name: "Example",

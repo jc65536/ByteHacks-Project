@@ -36,7 +36,7 @@ export default {
       })
       .catch((err) => {
         if (err.response.status === 401) {
-          this.error = 'Your session has been invalidated. Please sign in again.'
+          this.error = 'Your no longer have permission to do this. Please sign in again.'
         } else alert(err)
       })
     }
