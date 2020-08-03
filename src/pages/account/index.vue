@@ -4,6 +4,25 @@
       Account Dashboard
     </h2>
     <p class="text-center">{{ $store.state.user.email }}</p>
+    <div v-if="messages.length" class="text-center">
+      <h3 class="text-4xl text-center border-t border-gray-500 mt-5 pt-4">Incoming Messages</h3>
+      <a href="#" @click="showMessages = !showMessages" class="underline">{{ showMessages ? 'Hide messages' : 'Show messages' }}</a>
+      <div v-if="showMessages">
+        <div v-for="msg in messages" :key="msg.id">
+          <Card
+            :toptag="'from ' + msg.sender_email"
+            :subtitle="'Subject: ' + msg.subject"
+            :replyemail="msg.sender_email"
+            :replysubject="msg.subject"
+            :replyerror="replyError"
+            :replysuccess="replySuccess"
+            @submitReply="reply"
+          >
+            {{ msg.message }}
+          </Card>
+        </div>
+      </div>
+    </div>
     <div v-if="jobs.length">
       <h3 class="text-4xl text-center border-t border-gray-500 mt-5 pt-4">Job Listings</h3>
       <div v-for="job in jobs" :key="job.id">
@@ -32,7 +51,11 @@ import { EventBus } from '@/plugins/event'
 export default {
   data () {
     return {
-      jobs: []
+      jobs: [],
+      messages: [],
+      replyError: '',
+      replySuccess: '',
+      showMessages: true
     }
   },
   mounted () {
@@ -41,6 +64,28 @@ export default {
     .then((res) => {
       this.jobs = res.data.jobs
     })
+    axios.get('/api/get-messages', {}, this)
+    .then((res) => {
+      this.messages = res.data.received
+    })
+  },
+  methods: {
+    reply (message, recipient, subject) {
+      axios.post('/api/send-message', { recipient, message, subject: `Re: ${subject}` }, this)
+      .then((res) => {
+        this.replySuccess = 'Message sent!'
+        this.replyError = ''
+      })
+      .catch((err) => {
+        if (err.response.status === 400) {
+          this.replyError = 'Unable to send message :('
+          this.replySuccess = ''
+        } else if (err.response.status === 401) {
+          this.replyError = 'Please sign in again and try again.'
+          this.replySuccess = ''
+        }
+      })
+    }
   },
   beforeDestoy () {
     EventBus.$off('userChanged')

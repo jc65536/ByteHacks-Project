@@ -12,13 +12,20 @@
       <slot></slot>
     </p>
     <div class="text-sm font-bold text-gray-600">
-      <p>Starts {{ convertedStartdate }}</p>
-      <p>Ends {{ convertedEnddate }}</p>
+      <p v-if="startdate">Starts {{ convertedStartdate }}</p>
+      <p v-if="enddate">Ends {{ convertedEnddate }}</p>
     </div>
-    <p class="text-sm my-2">At {{ location }}</p>
+    <p v-if="location" class="text-sm my-2">At {{ location }}</p>
     <n-link v-if='editlink' :to='editlink' class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">Edit</n-link>
     <n-link v-if='deletelink' :to='deletelink' class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">Delete</n-link>
     <n-link v-if="applylink" :to="applylink" class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">Apply</n-link>
+    <button v-if='replyemail' @click="showReplyBox = !showReplyBox" class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">Reply</button>
+    <div v-if="showReplyBox">
+      <textarea v-model="message" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500"  placeholder="Reply here..."></textarea>
+      <p class="text-sm text-green-600">{{ replysuccess }}</p>
+      <p class="text-sm text-red-600">{{ replyerror }}</p>
+      <button class="bg-blue-600 rounded-md m-1 p-1 font-bold text-gray-200" @click="$emit('submitReply', message, replyemail, replysubject)">Send</button>
+    </div>
   </div>
 </div>
 </template>
@@ -35,6 +42,11 @@ function dtString (iso) {
 }
 
 export default {
+  data () {
+    return {
+      showReplyBox: false
+    }
+  },
   props: [
     'title',
     'subtitle',
@@ -46,7 +58,14 @@ export default {
     'editlink',
     'deletelink',
     'titlelink',
+<<<<<<< HEAD
     'applylink'
+=======
+    'replyerror',
+    'replysuccess',
+    'replyemail',
+    'replysubject'
+>>>>>>> ca5f24f45b6846a9608fed45500b955c556da2bf
   ],
   computed: {
     convertedStartdate () {
