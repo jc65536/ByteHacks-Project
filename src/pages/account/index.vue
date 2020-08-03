@@ -6,19 +6,21 @@
     <p class="text-center">{{ $store.state.user.email }}</p>
     <div v-if="messages.length" class="text-center">
       <h3 class="text-4xl text-center border-t border-gray-500 mt-5 pt-4">Messages &amp; Applications</h3>
-      <a href="#" @click="showMessages = !showMessages" class="underline">{{ showMessages ? 'Hide messages' : 'Show messages' }}</a>
+      <a href="#" @click.prevent="showMessages = !showMessages" class="underline">{{ showMessages ? 'Hide messages' : 'Show messages' }}</a>
       &middot;
-      <a href="#" @click="showMyReplies = !showMyReplies" class="underline">{{ showMyReplies ? 'Hide sent messages' : 'Show sent messages' }}</a>
+      <a href="#" @click.prevent="showMyReplies = !showMyReplies" class="underline">{{ showMyReplies ? 'Hide sent messages' : 'Show sent messages' }}</a>
       &middot;
-      <a href="#" @click="onlyShowApps = !onlyShowApps" class="underline">{{ onlyShowApps ? 'Show all messages' : 'Only show applications' }}</a>
+      <a href="#" @click.prevent="onlyShowApps = !onlyShowApps" class="underline">{{ onlyShowApps ? 'Show all messages' : 'Only show applications' }}</a>
       <div v-if="showMessages">
         <div v-for="msg in messages" :key="msg.id">
           <Card
             v-if="msg.sender_email !== $store.state.user.email && !onlyShowApps && !msg.subject.startsWith('APPLICATION')" 
+            compact=true
             :toptag="'from ' + msg.sender_email"
             :subtitle="msg.subject"
             :replyemail="msg.sender_email"
             :replysubject="msg.subject"
+            :replyid="msg.jobid"
             :replyerror="replyError"
             :replysuccess="replySuccess"
             @submitReply="reply"
@@ -33,6 +35,7 @@
             subtitle2="Please make sure to update your job listing with available positions."
             :replyemail="msg.sender_email"
             :replysubject="msg.subject"
+            :replyid="msg.jobid"
             :replyerror="replyError"
             :replysuccess="replySuccess"
             @submitReply="reply"
@@ -50,6 +53,7 @@
           </Card>
           <Card
             v-else-if="showMyReplies && !onlyShowApps" 
+            compact=true
             :toptag="'Sent to ' + msg.receiver_email"
             :subtitle="msg.subject"
             @submitReply="reply"
@@ -72,8 +76,26 @@
           :enddate="job.end_date"
           :editlink="'/jobs/' + job.id + '/edit'"
           :deletelink="'/jobs/' + job.id"
+          showbottomtext="Show Applications"
         >
           {{ job.description }}
+          <div slot="bottom-content">
+            <div v-for="msg in messages" :key="msg.id">
+              <Card
+                v-if="msg.jobid === job.id && msg.subject.startsWith('APPLICATION')"
+                :toptag="'from ' + msg.sender_email"
+                :subtitle="msg.subject"
+                :replyemail="msg.sender_email"
+                :replysubject="msg.subject"
+                :replyid="msg.jobid"
+                :replyerror="replyError"
+                :replysuccess="replySuccess"
+                @submitReply="reply"
+              >
+                {{ msg.message }}
+              </Card>
+            </div>
+          </div>
         </Card>
       </div>
     </div>
@@ -108,8 +130,8 @@ export default {
     })
   },
   methods: {
-    reply (message, recipient, subject) {
-      axios.post('/api/send-message', { recipient, message, subject: `Re: ${subject}` }, this)
+    reply (message, recipient, subject, jobid) {
+      axios.post('/api/send-message', { recipient, message, jobid, subject: `Re: ${subject}` }, this)
       .then((res) => {
         this.replySuccess = 'Message sent!'
         this.replyError = ''

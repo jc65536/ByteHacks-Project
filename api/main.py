@@ -226,6 +226,7 @@ def send_message(current_user):
         recipient = data['recipient']
         message = data['message']
         subject = data['subject']
+        jobid = data['jobid']
     except:
         return jsonify({'message': 'Invalid request', 'successful': False}), 400
 
@@ -235,7 +236,7 @@ def send_message(current_user):
     if recipient_user is None:
         return jsonify({'message': 'Recipient not found', 'successful': False}), 400
 
-    msg = Message(author=sender_user, recipient=recipient_user, message=message, subject=subject, timestamp=timestamp)
+    msg = Message(author=sender_user, recipient=recipient_user, message=message, subject=subject, jobid=jobid, timestamp=timestamp)
 
     db.session.add(msg)
     db.session.commit()
@@ -256,14 +257,14 @@ def recv_message(current_user):
         starting_time = get_data(data, 'time')
 
     received_messages = [{'timestamp': message.timestamp, 'sender_email': User.query.filter_by(id=message.sender_id).first().email,
-                          'receiver_email': requestor.email, 'message': message.message, 'subject': message.subject} 
+                          'receiver_email': requestor.email, 'message': message.message, 'subject': message.subject, 'jobid': message.jobid} 
                           for message in
                          requestor.messages_received.filter(
                              Message.timestamp >= starting_time
                          ).all()]
 
-    sent_messages = [{'timestamp': message.timestamp, 'sender_email': requestor.email,
-                      'receiver_email': User.query.filter_by(id=message.recipient_id).first().email, 'message': message.message, 'subject': message.subject} 
+    sent_messages = [{'timestamp': message.timestamp, 'sender_email': requestor.email, 'receiver_email': User.query.filter_by(id=message.recipient_id).first().email, 
+                    'message': message.message, 'subject': message.subject, 'jobid': message.jobid} 
                       for message in
                      requestor.messages_sent.filter(
                          Message.timestamp >= starting_time

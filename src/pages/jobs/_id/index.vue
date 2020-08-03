@@ -72,7 +72,7 @@ export default {
 
       const subject = application === true ? `APPLICATION for: ${this.job.title}` : `Job listing: ${this.job.title}` // why is this redundant condition necesarry, wtf js
   
-      axios.post('/api/send-message', { recipient: this.job.creator, subject, message: this.message }, this)
+      axios.post('/api/send-message', { recipient: this.job.creator, subject, message: this.message, jobid: this.job.id }, this)
       .then((res) => {
         this.messageSuccess = 'Sent successfully!'
         this.messageError = ''
