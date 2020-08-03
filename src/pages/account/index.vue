@@ -16,6 +16,7 @@
           :startdate="job.start_date"
           :enddate="job.end_date"
           :editlink="'/jobs/' + job.id + '/edit'"
+          :deletelink="'/jobs/' + job.id"
         >
           {{ job.description }}
         </Card>

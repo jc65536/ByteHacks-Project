@@ -6,7 +6,7 @@
       <h3 class="text-center text-teal-500 text-xl">
         Answer the questions below and type the answers in the box below.  Once you are done, click on Submit.
       </h3>
-      <JobForm @submitForm="submit" />
+      <JobForm @submitForm="submit" :error="error" />
   </div>
 </template>
 
@@ -18,6 +18,11 @@ export default {
   components: {
     JobForm
   },
+  data () {
+    return {
+      error: ''
+    }
+  },
   mounted () {
     if (!this.$store.getters.isValidJWT()) this.$router.push('/account/login')
   },
@@ -25,12 +30,14 @@ export default {
     submit (form) {
       axios.post('/api/add-job', form, this)
       .then((res) => {
-        alert(`Job posted! Job id ${res.data.id}`)
+        alert(`Job posted! Job id is ${res.data.id}`)
+        this.$router.push('/account')
       })
       .catch((err) => {
+        console.log(err)
         if (err.response.status === 401) {
-        }
-        alert(err)
+          this.error = 'Your session has been invalidated. Please sign in again.'
+        } else alert(err)
       })
     }
   }

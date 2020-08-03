@@ -3,7 +3,7 @@
   <h2 class="text-teal-500 text-6xl text-center">
       Edit Job
     </h2>
-    <JobForm :form='job' @submitForm="submit" />
+    <JobForm :form='job' @submitForm="submit" :error="error" />
 </div>
 </template>
 
@@ -17,7 +17,8 @@ export default {
   },
   data () {
     return {
-      job: {}
+      job: {},
+      error: ''
     }
   },
   asyncData (ctx) {
@@ -31,12 +32,12 @@ export default {
       axios.post('/api/update-job', form, this)
       .then((res) => {
         alert(`Job updated! Job id ${res.data.id}`)
+        this.$router.push('/jobs/' + this.job.id)
       })
       .catch((err) => {
         if (err.response.status === 401) {
-          alert('not authorized')
-        }
-        alert(err)
+          this.error = 'Your session has been invalidated. Please sign in again.'
+        } else alert(err)
       })
     }
   }

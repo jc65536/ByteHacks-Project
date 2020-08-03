@@ -63,10 +63,11 @@
       Description of the job
     </label>
     <textarea v-model="form.description" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500"  placeholder="Short Job Description"></textarea>
+    <p class="text-sm text-red-600">{{ error }}</p>
   </div>
   <div class="md:items-center">
     <button class="shadow bg-teal-500 hover:bg-teal-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded" type="button" @click="submit">
-      Create Job
+      Save Job
     </button>
   </div>
 </form>
@@ -83,10 +84,20 @@ export default {
     form: {
       type: Object,
       default: () => { return {} }
+    },
+    error: {
+      type: String
     }
   },
   methods: {
     submit () {
+      for (const field in this.form) {
+        if (this.form[field].length < 1) {
+          this.error = 'Please make sure you have filled every field'
+          return
+        }
+      }
+
       this.$emit('submitForm', this.form)
     }
   }

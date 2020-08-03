@@ -6,6 +6,7 @@
     <div v-for="job in jobs" :key="job.id">
       <Card
       :title="job.title"
+      :titlelink="'/jobs/' + job.id"
       :toptag="job.positions + ' position(s) left'"
       :subtitle="'By ' + job.employer"
       :subtitle2="'pays ' + job.wage"
