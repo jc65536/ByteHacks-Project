@@ -162,14 +162,15 @@ def get_info():
                                 "open_now": True, "next_open": weekday, "successful": True})
             else:  # not open could be due to not open on that day or after closing hours
                 # search for the next open day
-                closed = True
-                while closed:
-                    weekday = (weekday + 1) % 7
+                i = 0
+                while i < 7:
+                    i += 1
                     for day in hours["open"]:
                         if day["day"] == weekday:
-                            closed = False
-                return jsonify({"open": hours["open"][weekday]["start"], "close": hours["open"][weekday]["end"],
+                            return jsonify({"open": hours["open"][weekday]["start"], "close": hours["open"][weekday]["end"],
                                 "open_now": False, "next_open": weekday, "successful": True})
+                    weekday = (weekday + 1) % 7
+                return jsonify({'message': 'No hours data', "successful": False})
         except:  # no hours data
             return jsonify({'message': 'No hours data', "successful": False})
     else:

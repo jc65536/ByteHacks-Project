@@ -1,27 +1,37 @@
 <template>
   <div style="display: flex; flex-grow: 1; flex-direction: column; margin-bottom: 300px">
     <div>
-      <div class="control"><input type="radio" value="list" v-model="view" checked />List view</div>
-      <div class="control"><input type="radio" value="map" v-model="view" />Map view</div>
-      <div class="control">How far to search: {{radius}} miles <input type="range" min="1" max="25" value="5" v-model="radius" /></div>
-      <div class="control"><button id="place-search" @click="newSearch()">Search</button></div>
+      <div class="control">
+        <input type="radio" id="list" value="list" v-model="view" checked />
+        <label for="list">List view</label>
+        <input type="radio" id="map" value="map" v-model="view" />
+        <label for="map">Map view</label>
+      </div>
+      <div class="control">
+        How far to search: {{radius}} miles
+        <input type="range" min="1" max="25" value="5" v-model="radius" />
+      </div>
+      <div class="control">
+        <button @click="newSearch()">Search</button>
+      </div>
     </div>
     <ul v-if="view=='list'">
-      <li class="place-card" v-for="(place, index) in places" v-bind:key="index" @click="toggleCard(index)">
+      <li
+        class="card"
+        v-for="(place, index) in places"
+        v-bind:key="index"
+        @click="toggleCard(index)"
+      >
         <div style="display: flex; flex-direction: row">
-          <div style="height: 50px; width: 50px; overflow: clip; margin-right: 10px; ">
-          <img v-bind:src="place.image" style="height: 50px; object-fit: cover" />
+          <div class="place-img-frame">
+            <img v-bind:src="place.image" style="height:100%; object-fit: cover" />
           </div>
-          <div>
+          <div style="display: flex; flex-direction: column; justify-content: space-evenly">
             <p class="place-name">{{ place.name }}</p>
             <p class="place-address">{{ place.address }}</p>
           </div>
         </div>
-        <div v-if="place.expanded"><!--Details go here--></div>
-        <!--<input type="text" v-model="place.one" />
-        - {{ place.one }}
-        <input type="text" v-model="place.two" />
-        - {{ place.two }}-->
+        <div style="overflow: hidden; white-space: pre" v-bind:class="place.expanded ? 'expanding' : 'collapsing'">{{place.details}}</div>
       </li>
     </ul>
     <l-map
@@ -37,7 +47,8 @@
       <l-marker v-for="(place, index) in places" v-bind:key="index" :lat-lng="place.coordinates">
         <l-popup>
           <div @click="innerClick">
-            {{place.name}} <br/>
+            {{place.name}}
+            <br />
             {{place.address}}
           </div>
         </l-popup>
@@ -111,8 +122,8 @@ export default {
               this.places[i].latitude,
               this.places[i].longitude
             );
-            this.places[i].expanded = false;        // is this card currently expanded?
-            this.places[i].details = false;         // initially false since we haven't gotten details yet
+            this.places[i].expanded = false; // is this card currently expanded?
+            this.places[i].details = false; // initially false since we haven't gotten details yet
           }
         });
     },
@@ -126,36 +137,74 @@ export default {
       });
     },
     toggleCard(i) {
-        var place = this.places[i];
-        place.expanded = !place.expanded;
-        if (place.expanded) {
-            if (place.gotDetails) {
-
+      var place = this.places[i];
+      place.expanded = !place.expanded;
+      if (!place.details) {
+        // make request for details for this place
+        axios
+          .get("http://localhost:5000/api/soup-info", {
+            params: {
+              id: place.id,
+            },
+          })
+          .then((response) => {
+            var data = response.data;
+            var detailsString = "";
+            if (data.successful) {
+              if (data.open_now) {
+                detailsString +=
+                  "Open now.\nOpen today from " +
+                  numToTime(data.open) +
+                  " to " +
+                  numToTime(data.close);
+              } else {
+                var weekdays = [
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                  "Sunday",
+                ];
+                detailsString +=
+                  "Not open now.\nNext opening is " +
+                  weekdays[data.next_open] +
+                  " from " +
+                  numToTime(data.open) +
+                  " to " +
+                  numToTime(data.close);
+              }
             } else {
-                // make request for details for this place
-                console.log(place.id);
-                axios.get("http://localhost:5000/api/soup-info", {
-                    params: {
-                        id: place.id
-                    }
-                }).then((response) => {
-                    var data = response.data;
-                    console.log(data);
-                });
+              detailsString =
+                "No opening or closing data was found for this place, sorry.";
             }
-        } else {
-
-        }
-    }
+            place.details = detailsString;
+            this.$set(this.places, i, place);
+          });
+      } else {
+        this.$set(this.places, i, place);
+      }
+    },
   },
   mounted() {
     this.newSearch();
   },
 };
+
+function numToTime(n) {
+  var hours = Math.floor(n / 100);
+  var mins = n % 100;
+  var am = hours < 12 ? "a.m." : "p.m.";
+  if (hours > 12) hours -= 12;
+  if (hours == 0) hours = 12;
+  if (mins < 10) mins = "0" + mins;
+  return hours + ":" + mins + " " + am;
+}
 </script>
 
 <style scoped>
-.place-card {
+.card {
   padding: 10px;
   margin: 10px 0px;
   border-radius: 10px;
@@ -163,20 +212,89 @@ export default {
   cursor: pointer;
 }
 
+input[type=radio] {
+  display: none;
+}
+
+input[type=radio]+label {
+  width: 100px;
+  text-align: center;
+  display: inline-block;
+  cursor: pointer;
+}
+
+input[type=radio]+label::after {
+  content: "";
+  width: 0px;
+  display: block;
+  border: none;
+}
+
+input[type=radio]:checked+label::after {
+  width: 100%;
+  margin: auto;
+  border-top: 2px solid #2b67cd;
+  transition: width 0.2s;
+}
+
+input[type=radio]:checked+label {
+  font-weight: bold;
+  background-color: rgba(43, 103, 205, 0.1);
+  transition: background-color 0.2s;
+}
+
+input[type=range] {
+  margin-left: 10px;
+}
+
 .control {
-    display: inline-block;
-    margin: 5px 0px;
+  display: inline-flex;
+  margin: 5px 0px;
 }
 
 .control::after {
-    content: "";
-    display: inline-block;
-    width: 40px;
+  content: "";
+  display: inline-block;
+  width: 30px;
 }
 
-#place-search {
-    border: 2px solid #70ddff;
-    border-radius: 10px;
-    padding: 2px 10px;
+.place-name {
+  font-size: 1.2rem;
+}
+
+button, input[type="button"] {
+  border: 1px solid #2b67cd;
+  padding: 2px 10px;
+  border-radius: 5px;
+  box-shadow: 0px 1px 1px 0px #333;
+}
+
+button:hover, input[type="button"]:hover {
+  background-color: rgba(43, 103, 205, 0.1);
+  box-shadow: 0px 1px 3px 0px #333;
+  transition: box-shadow 0.15s, background-color 0.15s;
+}
+
+button:focus, input[type="button"]:focus {
+  outline: none;
+}
+
+.place-img-frame {
+  height: 64px;
+  width: 64px;
+  overflow: hidden;
+  margin-right: 10px; 
+}
+
+.collapsing {
+  height: auto;
+  max-height: 0px;
+  transition: max-height 0.2s cubic-bezier(0.1, 1.1, 0.5, 0.95);
+}
+
+.expanding {
+  height: auto;
+  max-height: 50px;
+  transition: max-height 0.2s cubic-bezier(0.1, 1.1, 0.5, 0.95);
 }
 </style>
