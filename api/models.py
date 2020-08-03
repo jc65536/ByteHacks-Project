@@ -21,6 +21,7 @@ class Message(db.Model):
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     message = db.Column(db.Text)
+    subject = db.Column(db.Text)
     timestamp = db.Column(db.Integer, index=True)
 
 

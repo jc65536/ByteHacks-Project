@@ -225,6 +225,7 @@ def send_message(current_user):
     try:
         recipient = data['recipient']
         message = data['message']
+        subject = data['subject']
     except:
         return jsonify({'message': 'Invalid request', 'successful': False}), 400
 
@@ -234,7 +235,7 @@ def send_message(current_user):
     if recipient_user is None:
         return jsonify({'message': 'Recipient not found', 'successful': False}), 400
 
-    msg = Message(author=sender_user, recipient=recipient_user, message=message, timestamp=timestamp)
+    msg = Message(author=sender_user, recipient=recipient_user, message=message, subject=subject, timestamp=timestamp)
 
     db.session.add(msg)
     db.session.commit()
@@ -242,33 +243,33 @@ def send_message(current_user):
     return jsonify({'message': 'Message sent successfully', 'successful': True})
 
 
-@main.route("/api/get-message", methods=["GET"])
+@main.route("/api/get-messages", methods=["GET"])
 @cross_origin(supports_credentials=True)
 @token_required
 def recv_message(current_user):
-    data = request.get_json()
-    requestor_email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])[
-        'sub']
-
-    requestor = User.query.filter_by(email=requestor_email).first()
+    data = request.args.to_dict()
+    
+    requestor = current_user
 
     starting_time = 0
     if get_data(data, 'time'):
-        starting_time = time
+        starting_time = get_data(data, 'time')
 
-    recieved_messages = [{'timestamp': message.timestamp, 'sender_email': User.query(id=message.sender_id),
-                          'reciever_email': User.query(id=message.recipient_id), 'message': message.message} for message
-                         in
-                         requestor.messages_recieved.filter(
+    received_messages = [{'timestamp': message.timestamp, 'sender_email': User.query.filter_by(id=message.sender_id).first().email,
+                          'receiver_email': requestor.email, 'message': message.message, 'subject': message.subject} 
+                          for message in
+                         requestor.messages_received.filter(
                              Message.timestamp >= starting_time
                          ).all()]
 
-    sent_messages = [{'timestamp': message.timestamp, 'sender_email': User.query(id=message.sender_id),
-                      'reciever_email': User.query(id=message.recipient_id), 'message': message.message} for message in
+    sent_messages = [{'timestamp': message.timestamp, 'sender_email': requestor.email,
+                      'receiver_email': User.query.filter_by(id=message.receiver_id).first().email, 'message': message.message, 'subject': message.subject} 
+                      for message in
                      requestor.messages_sent.filter(
                          Message.timestamp >= starting_time
                      ).all()]
 
-    all_messages = sorted(recieved_messages + sent_messages, key=lambda i: i['timestamp'])
+    received_messages = sorted(received_messages, key=lambda i: i['timestamp'])
+    sent_messages = sorted(sent_messages, key=lambda i: i['timestamp'])
 
-    return jsonify(all_messages)
+    return jsonify({ 'received': received_messages, 'sent': sent_messages })
