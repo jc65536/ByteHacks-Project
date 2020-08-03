@@ -31,6 +31,7 @@ module.exports = {
     "no-var": 0,
     "padded-blocks": 0,
     "eol-last": 0,
-    "vue/valid-v-for": 0
+    "vue/valid-v-for": 0,
+    "no-multi-spaces": 0
   }
 }

@@ -99,6 +99,9 @@ def add_job(current_user):
     end = get_data(data, "end_date")
     wage = get_data(data, "wage")
 
+    if (title is None or employer is None or positions is None or location is None or description is None or start is None or end is None or wage is None):
+        return "Fields are missing!", 401
+
     # Will Assign The Job To Account Who Created It
     email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])['sub']
 
@@ -177,9 +180,9 @@ def get_soup():
     latitude = get_data(data, "latitude")
     if (longitude is None) or (latitude is None):
         return jsonify({"message": "no location specified"}), 400
-    radius = (get_data(data, "radius") or 5) * 1600  # miles to meters
+    radius = int(get_data(data, "radius") or 5) * 1600  # miles to meters
     # Note the restriction in radius of https://www.yelp.com/developers/documentation/v3/business_search
-    if radius >= 40000:
+    if radius > 40000:
         return jsonify({"message": "radius too large - max is 25 miles"}), 400
     
     yelp_response = requests.get("https://api.yelp.com/v3/businesses/search",
@@ -199,7 +202,7 @@ def get_soup():
 
     simplified_array = []
     for bus in businesses:
-        simplified_array.append(SimplifiedBusiness(bus["name"], "".join(bus["location"]["display_address"]),
+        simplified_array.append(SimplifiedBusiness(bus["name"], " ".join(bus["location"]["display_address"]),
                                                    bus["coordinates"]["longitude"], bus["coordinates"]["latitude"],
                                                    bus["image_url"], bus["id"]).__dict__)
 
