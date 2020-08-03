@@ -18,6 +18,7 @@
     <p class="text-sm my-2">At {{ location }}</p>
     <n-link v-if='editlink' :to='editlink' class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">Edit</n-link>
     <n-link v-if='deletelink' :to='deletelink' class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">Delete</n-link>
+    <n-link v-if="applylink" :to="applylink" class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">Apply</n-link>
   </div>
 </div>
 </template>
@@ -44,7 +45,8 @@ export default {
     'location',
     'editlink',
     'deletelink',
-    'titlelink'
+    'titlelink',
+    'applylink'
   ],
   computed: {
     convertedStartdate () {
