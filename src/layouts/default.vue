@@ -1,62 +1,40 @@
 <template>
   <div>
-    <Nuxt />
+    <Navbar />
+    <div class="container">
+      <Nuxt />
+    </div>
   </div>
 </template>
 
+<script>
+import { EventBus } from '@/plugins/event'
+import axios from '@/plugins/axios'
+import Navbar from '../components/Navbar'
+
+export default {
+  components: {
+    Navbar
+  },
+  created () {
+    // Check for saved jwt and verify it
+    const jwt = localStorage.getItem('jwt')
+    if (jwt && this.$store.getters.isValidJWT(jwt)) {
+      this.$store.commit('setJWT', jwt)
+      this.$store.commit('setUserData', {
+        email: this.$store.getters.JWTProperty('sub'),
+        name: this.$store.getters.JWTProperty('name')
+      })
+
+      axios.post('/api/verify-token', {}, this)
+      .catch((err) => {
+        if (err.response.status === 401) this.$store.dispatch('logout')
+      })
+    }
+    EventBus.$emit('userChanged')
+  }
+}
+</script>
+
 <style>
-html {
-  font-family:
-    'Source Sans Pro',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
-  font-size: 16px;
-  word-spacing: 1px;
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  box-sizing: border-box;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-}
-
-.button--green {
-  display: inline-block;
-  border-radius: 4px;
-  border: 1px solid #3b8070;
-  color: #3b8070;
-  text-decoration: none;
-  padding: 10px 30px;
-}
-
-.button--green:hover {
-  color: #fff;
-  background-color: #3b8070;
-}
-
-.button--grey {
-  display: inline-block;
-  border-radius: 4px;
-  border: 1px solid #35495e;
-  color: #35495e;
-  text-decoration: none;
-  padding: 10px 30px;
-  margin-left: 15px;
-}
-
-.button--grey:hover {
-  color: #fff;
-  background-color: #35495e;
-}
 </style>

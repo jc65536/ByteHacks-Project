@@ -1,1 +1,4 @@
 venv/
+yelpsecrets
+node_modules
+yelpsecrets.txt

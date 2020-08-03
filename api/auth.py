@@ -1,55 +1,78 @@
-from flask import Blueprint, flash, redirect, url_for, request, jsonify, render_template
-from flask_login import login_user, logout_user, login_required
-from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.urls import url_parse
+from flask import Blueprint, request, jsonify, current_app
+from flask_cors import cross_origin
+from datetime import datetime, timedelta
+import jwt
 
 from .models import User
 from .extensions import db
 
 auth = Blueprint("auth", __name__)
 
+@auth.route('/api/verify-token', methods=["POST"])
+@cross_origin(supports_credentials=True)
+def verify_token():
+    auth_headers = request.headers.get('Authorization', '').split()
+
+    invalid_msg = {
+        'message': 'Invalid token. Registration and / or authentication required',
+        'authenticated': False
+    }
+    expired_msg = {
+        'message': 'Expired token. Reauthentication required.',
+        'authenticated': False
+    }
+    success_msg = { 'authenticated': True }
+
+    if len(auth_headers) != 2:
+        return jsonify(invalid_msg), 401
+
+    try:
+        token = auth_headers[1]
+        data = jwt.decode(token, current_app.config['SECRET_KEY'])
+        user = User.query.filter_by(email=data['sub']).first()
+        if not user:
+            raise RuntimeError('User not found')
+        return jsonify(success_msg)
+    except jwt.ExpiredSignatureError:
+        return jsonify(expired_msg), 401  # 401 is Unauthorized HTTP status code
+    except (jwt.InvalidTokenError, Exception) as e:
+        print(e)
+        return jsonify(invalid_msg), 401
 
 @auth.route('/api/login', methods=["GET", "POST"])
+@cross_origin()
 def login():
-    if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-        remember = True if request.form.get('remember_me') else False
+    data = request.get_json()
 
-        user = User.query.filter_by(email=email).first()
-        if not user or not check_password_hash(user.password, password):
-            return jsonify({'message': 'Invalid login credentials'})
+    email = data['email']
+    password = data['password']
+    user = User.authenticate(email=email, password=password)
 
-        login_user(user, remember=remember)
+    if not user:
+        return jsonify({'message': 'Invalid credentials', 'authenticated': False}), 401
 
-        return jsonify({'message': 'success'})
-    else:
-        return render_template("testing_files/login.html")
+    token = jwt.encode({
+        'sub': user.email,
+        'iat': datetime.utcnow(),
+        'exp': datetime.utcnow() + timedelta(weeks=1),
+        'name': user.name
+    },
+        current_app.config['SECRET_KEY']
+    )
+
+    return jsonify({'token': token.decode('UTF-8'), 'authenticated': True})
 
 
-@auth.route('/api/register', methods=['GET', 'POST'])
+@auth.route('/api/register', methods=['POST'])
+@cross_origin()
 def signup():
-    if request.method == "POST":
-        name = request.form.get('name')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        print("New User: ", name, email)
+    data = request.get_json()
+    email_check = User.query.filter_by(email=data['email']).first()
+    if email_check:
+        return jsonify({'message': 'Email already exists in database', 'registered': False, 'error': 'email-duplicate'})
+    new_user = User(name=data['name'], email=data['email'], password=data['password'])
 
-        email_check = User.query.filter_by(email=email).first()
-        if email_check:
-            return jsonify({'message': 'Email already exists in database'})
-        new_user = User(username=name, email=email, password=generate_password_hash(password))
+    db.session.add(new_user)
+    db.session.commit()
 
-        db.session.add(new_user)
-        db.session.commit()
-
-        return jsonify({'message': 'success'})
-    else:
-        return render_template("testing_files/register.html")
-
-
-@auth.route('/api/logout')
-@login_required
-def logout():
-    logout_user()
-    return jsonify({'message': 'success'})
+    return jsonify({'message': 'success', 'registered': True})

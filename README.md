@@ -13,7 +13,28 @@ Running Flask App:
 ```shell
 export FLASK_APP=api (Unix)
 set FLASK_APP=api (Windows CMD)
+
+export YELP_API_KEY=API_KEY_HERE (Unix)
+set YELP_API_KEY=API_KEY_HERE (Windows CMD)
+
 flask run
 ```
 
+```
+# Set flask to dev mode
+export FLASK_ENV=development
+```
+
 or run `run.bat` if you're on Windows
+
+### How to run frontend
+**Make sure you are in the src/ folder**<br>
+Installing Dependencies:<br>
+`npm install`
+
+Running the Server:<br>
+`npm run dev`<br>
+
+After running both the frontend and the backend, you can connect to the app by going to [http://localhost:3000][http://localhost:3000]
+
+[http://localhost:3000]: http://localhost:3000
