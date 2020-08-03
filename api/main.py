@@ -119,9 +119,13 @@ def add_job(current_user):
 def update_job(current_user):
     data = request.get_json()
     job_id = get_data(data, "id")
+    delete = get_data(data, "delete")
     email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])['sub']
     job = Job.query.filter_by(id=job_id, creator=email).first()
-    if job:
+    if job and delete:
+        db.session.delete(job)
+        db.session.commit()
+    elif job:
         setattr(job, 'title', get_data(data, "title") or job.title)
         setattr(job, 'positions', get_data(data, "positions") or job.positions)
         setattr(job, 'start-date', get_data(data, "start_date") or job.start_date)
