@@ -270,6 +270,7 @@ def recv_message(current_user):
                      ).all()]
 
     received_messages = sorted(received_messages, key=lambda i: i['timestamp'], reverse=True)
-    sent_messages = sorted(sent_messages, key=lambda i: i['timestamp'])
+    sent_messages = sorted(sent_messages, key=lambda i: i['timestamp'], reverse=True)
+    all_messages = sorted(sent_messages + received_messages, key=lambda i: i['timestamp'], reverse=True)
 
-    return jsonify({ 'received': received_messages, 'sent': sent_messages })
+    return jsonify({ 'received': received_messages, 'sent': sent_messages, 'all_messages': all_messages})

@@ -5,11 +5,14 @@
     </h2>
     <p class="text-center">{{ $store.state.user.email }}</p>
     <div v-if="messages.length" class="text-center">
-      <h3 class="text-4xl text-center border-t border-gray-500 mt-5 pt-4">Incoming Messages</h3>
+      <h3 class="text-4xl text-center border-t border-gray-500 mt-5 pt-4">My Messages</h3>
       <a href="#" @click="showMessages = !showMessages" class="underline">{{ showMessages ? 'Hide messages' : 'Show messages' }}</a>
+      &middot;
+      <a href="#" @click="showMyReplies = !showMyReplies" class="underline">{{ showMyReplies ? 'Hide my replies' : 'Show my replies' }}</a>
       <div v-if="showMessages">
         <div v-for="msg in messages" :key="msg.id">
           <Card
+            v-if="msg.sender_email !== $store.state.user.email" 
             :toptag="'from ' + msg.sender_email"
             :subtitle="'Subject: ' + msg.subject"
             :replyemail="msg.sender_email"
@@ -20,11 +23,19 @@
           >
             {{ msg.message }}
           </Card>
+          <Card
+            v-else-if="showMyReplies" 
+            :toptag="'Sent to ' + msg.receiver_email"
+            :subtitle="'Subject: ' + msg.subject"
+            @submitReply="reply"
+          >
+            {{ msg.message }}
+          </Card>
         </div>
       </div>
     </div>
     <div v-if="jobs.length">
-      <h3 class="text-4xl text-center border-t border-gray-500 mt-5 pt-4">Job Listings</h3>
+      <h3 class="text-4xl text-center border-t border-gray-500 mt-5 pt-4">My Job Listings</h3>
       <div v-for="job in jobs" :key="job.id">
         <Card
           :title="job.title"
@@ -55,7 +66,8 @@ export default {
       messages: [],
       replyError: '',
       replySuccess: '',
-      showMessages: true
+      showMessages: true,
+      showMyReplies: false
     }
   },
   mounted () {
@@ -66,7 +78,7 @@ export default {
     })
     axios.get('/api/get-messages', {}, this)
     .then((res) => {
-      this.messages = res.data.received
+      this.messages = res.data.all_messages
     })
   },
   methods: {
