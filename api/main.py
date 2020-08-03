@@ -263,13 +263,13 @@ def recv_message(current_user):
                          ).all()]
 
     sent_messages = [{'timestamp': message.timestamp, 'sender_email': requestor.email,
-                      'receiver_email': User.query.filter_by(id=message.receiver_id).first().email, 'message': message.message, 'subject': message.subject} 
+                      'receiver_email': User.query.filter_by(id=message.recipient_id).first().email, 'message': message.message, 'subject': message.subject} 
                       for message in
                      requestor.messages_sent.filter(
                          Message.timestamp >= starting_time
                      ).all()]
 
-    received_messages = sorted(received_messages, key=lambda i: i['timestamp'])
+    received_messages = sorted(received_messages, key=lambda i: i['timestamp'], reverse=True)
     sent_messages = sorted(sent_messages, key=lambda i: i['timestamp'])
 
     return jsonify({ 'received': received_messages, 'sent': sent_messages })
