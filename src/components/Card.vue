@@ -58,14 +58,11 @@ export default {
     'editlink',
     'deletelink',
     'titlelink',
-<<<<<<< HEAD
     'applylink'
-=======
     'replyerror',
     'replysuccess',
     'replyemail',
     'replysubject'
->>>>>>> ca5f24f45b6846a9608fed45500b955c556da2bf
   ],
   computed: {
     convertedStartdate () {
