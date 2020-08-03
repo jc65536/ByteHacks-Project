@@ -78,7 +78,7 @@ def get_jobs():
     wanted_jobs = [row2dict(job) for job in all_jobs]
     sort_criteria = get_data(data, "sort")
     if sort_criteria == "date" or sort_criteria is None:
-        wanted_jobs = sorted(wanted_jobs, key=dateSort)
+        wanted_jobs = sorted(wanted_jobs, key=lambda job: dateSort)
     elif sort_criteria == "positions":
         wanted_jobs = sorted(wanted_jobs, key=lambda job: job.positions, reverse=True)
 
