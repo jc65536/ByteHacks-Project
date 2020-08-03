@@ -221,6 +221,12 @@ input[type=radio]+label {
   text-align: center;
   display: inline-block;
   cursor: pointer;
+  margin-right: 10px;
+}
+
+input[type=radio]+label:hover {
+  background-color: rgba(43, 103, 205, 0.1);
+  transition: background-color 0.2s;
 }
 
 input[type=radio]+label::after {

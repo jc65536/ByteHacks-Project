@@ -33,6 +33,7 @@ module.exports = {
     "eol-last": 0,
     "vue/valid-v-for": 0,
     "no-multi-spaces": 0,
-    "eqeqeq": 0
+    "eqeqeq": 0,
+    "no-multiple-empty-lines": 0
   }
 }
