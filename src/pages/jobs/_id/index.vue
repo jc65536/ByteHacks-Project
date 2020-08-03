@@ -16,7 +16,7 @@
       {{ job.description }}
     </Card>
     <div v-if="$store.state.user && job.creator !== $store.state.user.email" class="text-center max-w-xs mx-auto">
-      <textarea v-model="message" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500"  placeholder="Send a message to the employer, or type your application here"></textarea>
+      <textarea v-model="message" rows="5" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500"  placeholder="Send a message to the employer, or type your application here"></textarea>
       <p class="text-sm text-green-600">{{ messageSuccess }}</p>
       <p class="text-sm text-red-600">{{ messageError }}</p>
       <button class="bg-blue-600 rounded-md m-2 p-2 font-bold text-gray-200" @click="sendMessage">Send Message</button>
@@ -54,6 +54,7 @@ export default {
   },
   methods: {
     deleteJob () {
+      if (!confirm("Are you sure you want to delete this job?")) return
       axios.post('/api/update-job', { id: this.job.id, delete: true }, this)
       .then((res) => {
         if (res.data.success) {
