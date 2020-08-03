@@ -15,6 +15,7 @@
           :location="job.location"
           :startdate="job.start_date"
           :enddate="job.end_date"
+          :editlink="'/jobs/' + job.id + '/edit'"
         >
           {{ job.description }}
         </Card>
@@ -35,7 +36,7 @@ export default {
   },
   mounted () {
     if (!this.$store.getters.isValidJWT()) this.$router.push('/account/login')
-    axios.get('/api/get-jobs', { params: { email: this.$store.state.user.email } })
+    axios.get('/api/get-jobs', { email: this.$store.state.user.email })
     .then((res) => {
       this.jobs = res.data.jobs
     })

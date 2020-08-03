@@ -61,23 +61,24 @@ def get_jobs():
     data = request.args.to_dict()
     email = get_data(data, "email")
     employer = get_data(data, 'employer')
-    if email is None and employer is None:
-        all_jobs = Job.query.all()
-    elif employer is not None:
-        all_jobs = Job.query.filter_by(employer=employer).all()
-    else:
+    jobid = get_data(data, 'id')
+    if email:
         all_jobs = Job.query.filter_by(creator=email).all()
+    elif employer:
+        all_jobs = Job.query.filter_by(employer=employer).all()
+    elif jobid:
+        all_jobs = Job.query.filter_by(id=jobid).all()
+    else:
+        all_jobs = Job.query.all()
+
+    def dateSort(job):
+        return datetime.fromisoformat(job['start_date'])
+        ## might need to add more error handling
 
     wanted_jobs = [row2dict(job) for job in all_jobs]
     sort_criteria = get_data(data, "sort")
     if sort_criteria == "date" or sort_criteria is None:
-        wanted_jobs = sorted(wanted_jobs, key=lambda job: datetime.fromisoformat(job['start_date']))
-    # We might wanna implement this in the future
-    # But that's only if we have like a standardized address system such that we can look up location
-    elif sort_criteria == "location":
-        pass
-    elif sort_criteria == "wage":
-        wanted_jobs = sorted(wanted_jobs, key=lambda job: job.wage, reverse=True)
+        wanted_jobs = sorted(wanted_jobs, key=dateSort)
     elif sort_criteria == "positions":
         wanted_jobs = sorted(wanted_jobs, key=lambda job: job.positions, reverse=True)
 
@@ -89,14 +90,14 @@ def get_jobs():
 @token_required
 def add_job(current_user):
     data = request.get_json()
-    title = get_data(data, "job")
+    title = get_data(data, "title")
     employer = get_data(data, "employer")
     positions = get_data(data, "positions")
     location = get_data(data, "location")
     description = get_data(data, "description")
-    start = get_data(data, "start")
-    end = get_data(data, "end")
-    wage = get_data(data, "salary")
+    start = get_data(data, "start_date")
+    end = get_data(data, "end_date")
+    wage = get_data(data, "wage")
 
     # Will Assign The Job To Account Who Created It
     email = jwt.decode(request.headers.get('Authorization', '').split()[1], current_app.config['SECRET_KEY'])['sub']
@@ -123,9 +124,8 @@ def update_job(current_user):
     if job:
         setattr(job, 'title', get_data(data, "title") or job.title)
         setattr(job, 'positions', get_data(data, "positions") or job.positions)
-        setattr(job, 'date', get_data(data, "date") or job.date)
-        setattr(job, 'start-date', get_data(data, "start-date") or job.start_date)
-        setattr(job, 'end-date', get_data(data, "end-date") or job.end_date)
+        setattr(job, 'start-date', get_data(data, "start_date") or job.start_date)
+        setattr(job, 'end-date', get_data(data, "end_date") or job.end_date)
         setattr(job, 'location', get_data(data, "location") or job.location)
         setattr(job, 'description', get_data(data, "description") or job.description)
         setattr(job, 'wage', get_data(data, "wage") or job.wage)
@@ -133,9 +133,10 @@ def update_job(current_user):
         db.session.commit()
     else:
         return "Not Authorized to Do This", 401
-    return jsonify(
-        id=job_id
-    )
+    return jsonify({
+        'id': job_id,
+        'success': True
+    })
 
 
 @main.route("/api/soup-info", methods=['GET'])
