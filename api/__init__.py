@@ -5,10 +5,6 @@ from flask_cors import CORS
 
 SECRET_KEY = os.urandom(32)
 YELP_API_KEY = os.environ['YELP_API_KEY']
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 
 # Basic app factory
 def create_app():
