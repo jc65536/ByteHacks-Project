@@ -5,6 +5,7 @@ from .extensions import db
 from . import YELP_API_KEY
 import requests
 from datetime import datetime
+import dateutil.parser
 import jwt
 from functools import wraps
 import time
@@ -73,7 +74,7 @@ def get_jobs():
         all_jobs = Job.query.all()
 
     def dateSort(job):
-        return datetime.fromisoformat(job['start_date'])
+        return dateutil.parser.isoparse(job['start_date'])
         ## might need to add more error handling
 
     wanted_jobs = [row2dict(job) for job in all_jobs]
@@ -260,14 +261,14 @@ def recv_message(current_user):
         starting_time = get_data(data, 'time')
 
     received_messages = [{'timestamp': message.timestamp, 'sender_email': User.query.filter_by(id=message.sender_id).first().email,
-                          'receiver_email': requestor.email, 'message': message.message, 'subject': message.subject, 'jobid': message.jobid} 
+                          'receiver_email': requestor.email, 'message': message.message, 'subject': message.subject, 'jobid': message.jobid, 'id': message.id} 
                           for message in
                          requestor.messages_received.filter(
                              Message.timestamp >= starting_time
                          ).all()]
 
     sent_messages = [{'timestamp': message.timestamp, 'sender_email': requestor.email, 'receiver_email': User.query.filter_by(id=message.recipient_id).first().email, 
-                    'message': message.message, 'subject': message.subject, 'jobid': message.jobid} 
+                    'message': message.message, 'subject': message.subject, 'jobid': message.jobid, 'id': message.id} 
                       for message in
                      requestor.messages_sent.filter(
                          Message.timestamp >= starting_time
@@ -278,3 +279,30 @@ def recv_message(current_user):
     all_messages = sorted(sent_messages + received_messages, key=lambda i: i['timestamp'], reverse=True)
 
     return jsonify({'received': received_messages, 'sent': sent_messages, 'all_messages': all_messages})
+
+@main.route("/api/accept-application", methods=["POST"])
+@cross_origin(supports_credentials=True)
+@token_required
+def accept_application(current_user):
+    data = request.get_json()
+
+    try:
+        message_id = data['message_id']
+    except:
+        return jsonify({'message': 'Invalid request', 'successful': False}), 400
+
+    msg = Message.query.filter_by(id=message_id).first()
+    job = Job.query.filter_by(id=msg.jobid).first()
+
+    if not (msg.subject.startswith('APPLICATION') and msg.recipient_id == current_user.id and job.creator == current_user.email):
+        return jsonify({'message': 'Not authorized', 'successful': False}), 401
+
+    
+    db.session.delete(msg)
+    job.positions = job.positions - 1
+    if job.positions == -1:
+        job.positions = 0
+
+    db.session.commit()
+
+    return jsonify({'message': 'Application closed', 'successful': True})

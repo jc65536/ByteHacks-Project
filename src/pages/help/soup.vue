@@ -105,9 +105,6 @@ export default {
     showLongText() {
       this.showParagraph = !this.showParagraph;
     },
-    innerClick() {
-      alert("Click!");
-    },
     searchSoup() {
       axios
         .get("/api/soup", {
@@ -287,7 +284,7 @@ button:focus, input[type="button"]:focus {
   height: 64px;
   width: 64px;
   overflow: hidden;
-  margin-right: 10px; 
+  margin-right: 10px;
 }
 
 .collapsing {

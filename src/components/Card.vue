@@ -21,7 +21,8 @@
     <n-link v-if='deletelink' :to='deletelink' class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">Delete</n-link>
     <n-link v-if="applylink" :to="applylink" class="text-sm my-2 border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600">Apply</n-link>
     <a href="#" @click.prevent="showBottom = !showBottom" class="underline text-green-700 font-bold">{{ showbottomtext }}</a>
-    <button v-if='replyemail' @click="showReplyBox = !showReplyBox" :class="['text-sm border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600', !compact? 'my-2' : ' ']">{{ showReplyBox ? 'Hide reply' : 'Reply' }}</button>
+    <button v-if="replyemail" @click="showReplyBox = !showReplyBox" :class="['text-sm border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600', !compact? 'my-2' : ' ']">{{ showReplyBox ? 'Hide reply' : 'Reply' }}</button>
+    <button v-if="closeid" @click="$emit('submitClose', closeid)" :class="['text-sm border-2 border-blue-700 p-1 rounded-md mr-1 hover:text-blue-600', !compact? 'my-2' : ' ']">Accept application</button>
     <div v-if="showReplyBox">
       <textarea v-model="message" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-teal-500"  placeholder="Reply here..."></textarea>
       <p class="text-sm text-green-600">{{ replysuccess }}</p>
@@ -72,7 +73,8 @@ export default {
     'replyemail',
     'replysubject',
     'replyid',
-    'showbottomtext'
+    'showbottomtext',
+    'closeid'
   ],
   computed: {
     convertedStartdate () {
