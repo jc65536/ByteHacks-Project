@@ -90,6 +90,8 @@
                 :replyid="msg.jobid"
                 :replyerror="replyError"
                 :replysuccess="replySuccess"
+                :closeid="msg.id"
+                @submitClose="closeApplication"
                 @submitReply="reply"
               >
                 {{ msg.message }}
@@ -143,6 +145,20 @@ export default {
         } else if (err.response.status === 401) {
           this.replyError = 'Please sign in again and try again.'
           this.replySuccess = ''
+        }
+      })
+    },
+    closeApplication (messageId) {
+      if (!confirm("Are you sure you want to delete this application and decrement the job position count?")) return
+      axios.post('/api/accept-application', { message_id: messageId }, this)
+      .then((res) => {
+        alert("Application sucessfully closed")
+      })
+      .catch((err) => {
+        if (err.response.status === 400) {
+          alert("not authorized")
+        } else if (err.response.status === 401) {
+          alert("Please sign again and try again")
         }
       })
     }
