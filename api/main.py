@@ -5,6 +5,7 @@ from .extensions import db
 from . import YELP_API_KEY
 import requests
 from datetime import datetime
+import dateutil.parser
 import jwt
 from functools import wraps
 import time
@@ -73,7 +74,7 @@ def get_jobs():
         all_jobs = Job.query.all()
 
     def dateSort(job):
-        return datetime.fromisoformat(job['start_date'])
+        return dateutil.parser.isoparse(job['start_date'])
         ## might need to add more error handling
 
     wanted_jobs = [row2dict(job) for job in all_jobs]
